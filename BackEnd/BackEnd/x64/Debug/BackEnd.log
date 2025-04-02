@@ -1,0 +1,3 @@
+﻿  main.cpp
+D:\IWannaUnity\loveustars\iwanna_cplusplus\BackEnd\Network.h(104,77): warning C4267: “参数”: 从“size_t”转换到“int”，可能丢失数据
+  BackEnd.vcxproj -> D:\IWannaUnity\loveustars\iwanna_cplusplus\BackEnd\x64\Debug\BackEnd.exe
