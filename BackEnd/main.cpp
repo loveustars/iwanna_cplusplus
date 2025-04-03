@@ -1,5 +1,8 @@
 #include "Network.h"
 #include "GameHandler.h"
+#include <chrono>
+#include <thread>
+
 const short SERVER_PORT = 8888; // 定义端口（以后可以改）
 
 int main() {
@@ -24,9 +27,26 @@ int main() {
     // 存储上一个客户端的地址信息，以便回复
     sockaddr_in lastClientAddr;
     memset(&lastClientAddr, 0, sizeof(lastClientAddr)); // 初始化
+    bool clientAddrKnown = false; // 标记是否知道客户端地址
+
+    // 计算delta时间
+    auto lastTime = std::chrono::high_resolution_clock::now();
+
 
     // 3. 主循环
     while (true) {
+        auto currentTime = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<float> deltaTimeDuration = currentTime - lastTime;
+        float deltaTime = deltaTimeDuration.count();
+        lastTime = currentTime;
+
+        // 防止 deltaTime 过大 (例如调试中断后恢复) 或过小 (可能导致除零等问题)
+        deltaTime = min(deltaTime, 0.1f); // 限制最大 deltaTime 为 0.1 秒
+        if (deltaTime <= 0.0f) {
+            // 如果 deltaTime 太小或为0，可以跳过本次迭代或给一个很小的值
+            std::this_thread::sleep_for(std::chrono::milliseconds(1)); // 短暂休眠避免空转
+            continue; // 跳过这一帧的处理
+        }
         std::string receivedMessage;
         sockaddr_in nowClientAdd; // 存储当前消息的来源地址
 
@@ -74,6 +94,20 @@ int main() {
                 // break; // 或者考虑退出？
             }
         }
+        gameHandler.Update(deltaTime); // <<<=== 在这里使用 deltaTime 更新游戏状态
+
+        // --- 发送状态回客户端 ---
+        if (clientAddrKnown) { // 只有在知道客户端地址时才发送
+            std::string stateString = gameHandler.GetStateString();
+            // std::cout << "Sending state: " << stateString << std::endl; // 减少打印
+            if (!networkManager.SendMessageTo(stateString, lastClientAddr)) {
+                std::cerr << "Error sending state update." << std::endl;
+                // 如果发送失败多次，可能也意味着客户端关闭了
+                // clientAddrKnown = false; // 可以考虑重置
+            }
+        }
+
+
         // bytesReceived == 0 在阻塞 UDP socket 上不应该发生
     }
 

@@ -18,7 +18,7 @@ private:
     bool initialized = false;
 
 public:
-    // 构造函数：初始化 Winsock
+    // 构造函数：初始化Winsock
     NetworkManager() {
         WSADATA wsaData;
         int result = WSAStartup(MAKEWORD(2, 2), &wsaData);
@@ -31,7 +31,7 @@ public:
         }
     }
 
-    // 析构函数：清理 Winsock 和 Socket
+    // 析构函数：清理Winsock和Socket
     ~NetworkManager() {
         if (listenSocket != INVALID_SOCKET) {
             closesocket(listenSocket);
@@ -43,7 +43,7 @@ public:
         }
     }
 
-    // 创建并绑定 Socket
+    // 创建并绑定Socket
     bool CreateAndBind(short port) {
         if (!initialized) return false;
 
@@ -70,7 +70,7 @@ public:
     }
 
     // 接收消息，返回接收的字节数，并将消息内容和发送方地址存入参数
-    // 返回值: >0 表示成功接收的字节数, 0 通常不可能在UDP阻塞模式下, <0 表示错误
+    // 返回值: >0 表示成功接收的字节数，0 通常不可能在UDP阻塞模式下，<0 表示错误
     int ReceiveMessage(std::string& message, sockaddr_in& clientAddr) {
         if (listenSocket == INVALID_SOCKET) return -1;
 
@@ -86,13 +86,7 @@ public:
 
         // 确保字符串是 null-terminated
         receiveBuffer[bytesReceived] = '\0';
-        message = receiveBuffer; // 将 C 风格字符串转为 std::string
-
-        // (可选) 打印来源信息
-        // char clientIp[INET_ADDRSTRLEN];
-        // inet_ntop(AF_INET, &clientAddr.sin_addr, clientIp, INET_ADDRSTRLEN);
-        // int clientPort = ntohs(clientAddr.sin_port);
-        // std::cout << "Received " << bytesReceived << " bytes from " << clientIp << ":" << clientPort << ": \"" << message << "\"" << std::endl;
+        message = receiveBuffer; // 将C风格字符串转为std::string
 
         return bytesReceived;
     }

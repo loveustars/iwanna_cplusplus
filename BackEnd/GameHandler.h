@@ -3,14 +3,15 @@
 #include <iostream>
 #include <sstream> // 解析字符串
 #include <vector>
+#include <algorithm>
 #include <map>     // 存储输入
 #include "3DPos.h"
 
-// (确保 Vector3D 和 PlayerState 结构已定义)
 
 class GameHandler {
 private:
     PlayerState nowPlayerState;
+    PlayerInputState nowInput;
 
     // 解析前端返回表示输入的字符串
     std::map<std::string, std::string> TransKeyString(const std::string& s) {
@@ -38,56 +39,29 @@ public:
 
     // 初始化游戏状态
     void Initialize() {
-        nowPlayerState.pos = { 0.0, 0.5, 0.0};
+        nowPlayerState.pos = { 0.0f, 0.5f, 0.0f};
+        nowPlayerState.velocity = { 0.0f, 0.0f, 0.0f };
+        nowPlayerState.isInAir = true;
+        nowInput = {};
         std::cout << "GameManager initialized. Player start position: "
             << nowPlayerState.pos.toStr() << std::endl;
     }
 
     // 处理从网络接收到的消息
     void ProcessMessage(const std::string& message) {
-        std::cout << "GameManager processing message: \"" << message << "\"" << std::endl;
-
+        nowInput.jumpPressed = false;
         // 简单的协议解析: 查找 "INPUT:" 前缀
         if (message.rfind("INPUT:", 0) == 0) { // 找INPUT开头的消息
             std::string inputData = message.substr(6); // 获取冒号之后的部分
             std::map<std::string, std::string> inputs = TransKeyString(inputData);
 
-            // --- 在这里根据解析出的 inputs 更新游戏状态 ---
-            // 这是一个非常基础的演示，实际游戏需要更复杂的物理和状态机
-            float moveSpeed = 0.1f; // 每次移动的距离（应该乘以 deltaTime）
-            bool jumped = false;
 
-            if (inputs.count("W") && inputs["W"] == "1") {
-                nowPlayerState.pos.y += moveSpeed; // 假设 Z 是向前
-                std::cout << "  Input: Move Forward" << std::endl;
-            }
-            if (inputs.count("S") && inputs["S"] == "1") {
-                nowPlayerState.pos.y -= moveSpeed;
-                std::cout << "  Input: Move Backward" << std::endl;
-            }
-            if (inputs.count("A") && inputs["A"] == "1") {
-                nowPlayerState.pos.x -= moveSpeed; // 假设 X 是向左
-                std::cout << "  Input: Move Left" << std::endl;
-            }
-            if (inputs.count("D") && inputs["D"] == "1") {
-                nowPlayerState.pos.x += moveSpeed;
-                std::cout << "  Input: Move Right" << std::endl;
-            }
+            nowInput.moveForward = (inputs.count("W") && inputs["W"] == "1");
+            nowInput.moveBackward = (inputs.count("S") && inputs["S"] == "1");
+            nowInput.moveLeft= (inputs.count("A") && inputs["A"] == "1");
+            nowInput.moveRight = (inputs.count("D") && inputs["D"] == "1");
             if (inputs.count("JUMP") && inputs["JUMP"] == "1") {
-                // 这里只是简单地向上移动一点，真正的跳跃需要物理模拟
-                // 并且需要检查是否在地面等状态
-                nowPlayerState.pos.z += moveSpeed * 2.0;
-                jumped = true;
-                std::cout << "  Input: Jump (applied simple Y increase)" << std::endl;
-            }
-
-            // 简单的模拟重力（如果没跳跃就往下掉一点，直到触地）
-            // 这是一个非常粗糙的模拟，实际需要碰撞检测
-            if (!jumped && nowPlayerState.pos.y > 0.0f) {
-                nowPlayerState.pos.y -= moveSpeed * 0.5f;
-                if (nowPlayerState.pos.y < 0.0f) {
-                    nowPlayerState.pos.y = 0.0f; // 假设地面在 Y=0
-                }
+                nowInput.jumpPressed = true;
             }
 
             std::cout << "  New position: " << nowPlayerState.pos.toStr() << std::endl;
@@ -98,14 +72,72 @@ public:
         }
     }
 
-    // 获取当前游戏状态的字符串表示，用于发送给前端
-    std::string GetStateString() const {
-        // 协议: STATE:POS=x,y,z
-        return "STATE:POS=" + nowPlayerState.pos.toStr();
+    void Update(float deltaTime) {
+        Struct3D tgVelocity = { 0.0f, nowPlayerState.velocity.y, 0.0f };
+        if (nowInput.moveForward) tgVelocity.z += MOVE_SPEED;
+        if (nowInput.moveBackward) tgVelocity.z -= MOVE_SPEED;
+        if (nowInput.moveLeft) tgVelocity.x -= MOVE_SPEED;
+        if (nowInput.moveRight) tgVelocity.x += MOVE_SPEED;
+        // (可选) 如果需要更平滑的移动，可以使用插值或加速度来改变速度，而不是直接设置
+        // 这里为了简单，直接设置目标速度
+        nowPlayerState.velocity.x = tgVelocity.x;
+        nowPlayerState.velocity.z = tgVelocity.z;
+
+        // 2. 处理跳跃 (状态机逻辑: 只有在地面才能跳)
+        if (nowInput.jumpPressed && !nowPlayerState.isInAir) {
+            nowPlayerState.velocity.y = JUMP_FORCE; // 施加向上的力
+            nowPlayerState.isInAir = true;      // 离开地面
+            std::cout << "Jump!" << std::endl;
+        }
+        // 重置跳跃键状态，确保只跳一次
+        nowInput.jumpPressed = false;
+
+
+        // 3. 应用重力 (只在空中时)
+        if (nowPlayerState.isInAir) {
+            nowPlayerState.velocity.y -= GRAVITY * deltaTime;
+            // 限制最大下落速度
+            nowPlayerState.velocity.y = max(nowPlayerState.velocity.y, MIN_FALL_VELOCITY);
+        }
+
+
+        // 4. 更新位置 (根据最终速度）
+        nowPlayerState.pos += nowPlayerState.velocity * deltaTime;
+
+
+        // 5. 碰撞检测（目前只有地面）
+        //  --- 这是最基础的碰撞检测 ---
+        bool prevAir = nowPlayerState.isInAir; // 记录之前的状态
+
+        if (nowPlayerState.pos.y <= GROUND_LEVEL && nowPlayerState.velocity.y <= 0) {
+            // 如果玩家位置低于或等于地面，并且正在下落或静止
+            nowPlayerState.pos.y = GROUND_LEVEL; // 修正位置到地面
+            nowPlayerState.velocity.y = 0;            // 停止垂直速度
+            nowPlayerState.isInAir = false;         // 标记为在地面上
+            if (!prevAir) {
+                std::cout << "Landed." << std::endl;
+            }
+        }
+        else {
+            // 如果玩家在空中
+            if (prevAir && nowPlayerState.velocity.y != 0) { // 从地面起跳或掉落
+                std::cout << "Left ground." << std::endl;
+            }
+            nowPlayerState.isInAir = true; // 不在地面
+        }
+
+        // --- 真实游戏需要更复杂的碰撞检测，涉及关卡几何体 ---
+
     }
 
-    // (未来可以添加)
-    // void Update(float deltaTime) {
-    //     // 处理基于时间的更新，如物理模拟、动画状态等
-    // }
+    // 获取当前游戏状态的字符串表示，用于发送给前端
+    std::string GetStateString() const {
+        // 注意协议: STATE:POS=x,y,z;VEL=vx,vy,vz;AIR=0/1
+        std::string stateStr = "STATE:";
+        stateStr += "POS=" + nowPlayerState.pos.toStr();
+        stateStr += ";V=" + nowPlayerState.velocity.toStr();
+        stateStr += ";AIR=" + std::string(nowPlayerState.isInAir ? "1" : "0");
+        return stateStr;
+    }
+
 };
