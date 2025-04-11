@@ -13,6 +13,9 @@ BackEnd/BackEnd/
 *.exe
 *.suo
 *.user
+**/*.sln
+**/*.vcxproj
+**/*.filters
 **/*.vcxproj.user
 **/x64/
 **/[Dd]ebug/
