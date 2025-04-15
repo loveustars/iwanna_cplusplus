@@ -2,115 +2,111 @@
 #pragma once
 
 #include <string>
-#include <cmath>    // ÓÃÓÚÊıÑ§º¯Êı£¬ÀıÈç std::sqrt (Èç¹ûÒÔºóĞèÒª)
-#include <limits>   // ÓÃÓÚÊıÖµ¼«ÏŞ (Èç¹ûÒÔºóĞèÒª)
-#include <compare>  // ÓÃÓÚ C++20 µÄÈıÂ·±È½ÏÔËËã·û <=>
+#include <cmath>
+#include <limits>
+#include <compare>  // ç”¨äºC++20çš„ä¸‰è·¯æ¯”è¾ƒè¿ç®—ç¬¦<=>
 
-// ´ú±í 3D ¿Õ¼äÖĞµÄµã»òÏòÁ¿µÄ½á¹¹Ìå
+// ä»£è¡¨3Dç©ºé—´ä¸­çš„ç‚¹æˆ–å‘é‡çš„ç»“æ„ä½“
 struct Struct3D {
     float x = 0.0f;
     float y = 0.0f;
     float z = 0.0f;
 
-    // ÒÆ³ıÁË toStr() º¯Êı£¬ÒòÎªĞòÁĞ»¯½«ÓÉ Protobuf ´¦Àí
+    // ç§»é™¤äº†toStr()å‡½æ•°ï¼Œå› ä¸ºåºåˆ—åŒ–å°†ç”±Protobufå¤„ç†
 
-    // ÖØÔØÔËËã·ûÒÔ·½±ã½øĞĞÏòÁ¿ÔËËã
+    // é‡è½½è¿ç®—ç¬¦ä»¥æ–¹ä¾¿è¿›è¡Œå‘é‡è¿ç®—
     Struct3D& operator+=(const Struct3D& other) {
         x += other.x; y += other.y; z += other.z;
         return *this;
     }
-
     Struct3D& operator-=(const Struct3D& other) {
         x -= other.x; y -= other.y; z -= other.z;
         return *this;
     }
-
     Struct3D operator+(const Struct3D& other) const {
         return { x + other.x, y + other.y, z + other.z };
     }
-
     Struct3D operator-(const Struct3D& other) const {
         return { x - other.x, y - other.y, z - other.z };
     }
-
-    // ÏòÁ¿Óë±êÁ¿µÄ³Ë·¨
+    // å‘é‡ä¸æ ‡é‡çš„ä¹˜æ³•
     Struct3D operator*(float scalar) const {
         return { x * scalar, y * scalar, z * scalar };
     }
 
-    // C++20: Ä¬ÈÏÊµÏÖµÄÈıÂ·±È½ÏÔËËã·û (spaceship operator)
-    // ÕâÊ¹µÃ Struct3D ¶ÔÏó¿ÉÒÔÖ±½ÓÊ¹ÓÃ ==, !=, <, >, <=, >= ½øĞĞ±È½Ï
+    // C++20: é»˜è®¤å®ç°çš„ä¸‰è·¯æ¯”è¾ƒè¿ç®—ç¬¦ (spaceship operator)
+    // è¿™ä½¿å¾—Struct3Då¯¹è±¡å¯ä»¥ç›´æ¥ä½¿ç”¨ ==, !=, <, >, <=, >= è¿›è¡Œæ¯”è¾ƒ
     auto operator <=> (const Struct3D&) const = default;
 };
 
-// ´ú±íÍæ¼ÒµÄÎïÀí×´Ì¬
+// ä»£è¡¨ç©å®¶çš„ç‰©ç†çŠ¶æ€
 class PlayerState {
 public:
-    Struct3D pos = { 0.0f, 0.5f, 0.0f }; // ³õÊ¼Î»ÖÃ£¬ÂÔ¸ßÓÚµØÃæ
-    Struct3D velocity = { 0.0f, 0.0f, 0.0f }; // ³õÊ¼ËÙ¶È
-    bool isInAir = true; // ³õÊ¼×´Ì¬ÊÓÎªÔÚ¿ÕÖĞ (ĞèÒªÏÂÂäµ½µØÃæ)
-    // Ö®ºó¿ÉÒÔÌí¼Ó¸ü¶à×´Ì¬£¬Èç³¯Ïò¡¢ÉúÃüÖµµÈ
+    Struct3D pos = { 0.0f, 0.5f, 0.0f }; // åˆå§‹ä½ç½®ï¼Œç•¥é«˜äºåœ°é¢
+    Struct3D velocity = { 0.0f, 0.0f, 0.0f }; // åˆå§‹é€Ÿåº¦
+    bool isInAir = true; // åˆå§‹çŠ¶æ€è§†ä¸ºåœ¨ç©ºä¸­ (éœ€è¦ä¸‹è½åˆ°åœ°é¢)
+    // ä¹‹åå¯ä»¥æ·»åŠ æ›´å¤šçŠ¶æ€ï¼Œå¦‚æœå‘ã€ç”Ÿå‘½å€¼ç­‰
 };
 
-// ´ú±íÍæ¼ÒÔÚµ±Ç°Ö¡µÄÊäÈëÒâÍ¼
-// (Í¨³£Í¨¹ı·´ĞòÁĞ»¯ÍøÂçÏûÏ¢µÃµ½)
+// ä»£è¡¨ç©å®¶åœ¨å½“å‰å¸§çš„è¾“å…¥æ„å›¾
+// (é€šå¸¸é€šè¿‡ååºåˆ—åŒ–ç½‘ç»œæ¶ˆæ¯å¾—åˆ°)
 struct PlayerInputState {
     bool moveForward = false;
     bool moveBackward = false;
     bool moveLeft = false;
     bool moveRight = false;
-    bool jumpPressed = false; // ½öÔÚÌøÔ¾¼ü±»°´ÏÂµÄÄÇÒ»Ö¡Îª true
+    bool jumpPressed = false; // ä»…åœ¨è·³è·ƒé”®è¢«æŒ‰ä¸‹çš„é‚£ä¸€å¸§ä¸ºtrue
 };
 
 
-// ÓÎÏ·³£Á¿¶¨Òå (Ê¹ÓÃ constexpr È·±£±àÒëÊ±ÇóÖµ)
+// æ¸¸æˆå¸¸é‡å®šä¹‰ (ä½¿ç”¨ constexpr ç¡®ä¿ç¼–è¯‘æ—¶æ±‚å€¼)
 namespace GameConstants {
-    constexpr float GRAVITY = 9.81f * 2.0f; // ÖØÁ¦¼ÓËÙ¶È (³ËÒÔ 2 ¿ÉÄÜÈÃÏÂÂä¸üÓĞ"ÓÎÏ·¸Ğ")
-    constexpr float MOVE_SPEED = 5.0f;      // Íæ¼ÒË®Æ½ÒÆ¶¯ËÙ¶È
-    constexpr float JUMP_FORCE = 7.5f;      // Íæ¼ÒÌøÔ¾µÄ³õÊ¼´¹Ö±ËÙ¶È (³åÁ¿)
-    constexpr float GROUND_LEVEL_Y = 0.0f;  // µØÃæµÄ Y ×ø±ê
-    constexpr float MAX_FALL_VELOCITY = -25.0f; // ×î´óÏÂÂäËÙ¶È (ÏŞÖÆÖÕ¶ËËÙ¶È)
-    constexpr float PLAYER_HEIGHT = 1.0f;   // Íæ¼Ò¸ß¶È (ÓÃÓÚÅö×²/AABB)
-    constexpr float PLAYER_WIDTH = 1.0f;    // Íæ¼Ò¿í¶È (ÓÃÓÚÅö×²/AABB)
-    constexpr float PLAYER_DEPTH = 1.0f;    // Íæ¼ÒÉî¶È (ÓÃÓÚÅö×²/AABB)
-    // Ö®ºó¿ÉÒÔ¸ù¾İĞèÒªÌí¼Ó¸ü¶à³£Á¿ (ÀıÈç: µØÃæÄ¦²ÁÏµÊı, ¿ÕÆø×èÁ¦ÏµÊıµÈ)
+    constexpr float GRAVITY = 9.81f * 2.0f; // é‡åŠ›åŠ é€Ÿåº¦ (ä¹˜ä»¥ 2 å¯èƒ½è®©ä¸‹è½æ›´æœ‰"æ¸¸æˆæ„Ÿ")
+    constexpr float MOVE_SPEED = 5.0f;      // ç©å®¶æ°´å¹³ç§»åŠ¨é€Ÿåº¦
+    constexpr float JUMP_FORCE = 7.5f;      // ç©å®¶è·³è·ƒçš„åˆå§‹å‚ç›´é€Ÿåº¦ (å†²é‡)
+    constexpr float GROUND_LEVEL_Y = 0.0f;  // åœ°é¢çš„ Y åæ ‡
+    constexpr float MAX_FALL_VELOCITY = -25.0f; // æœ€å¤§ä¸‹è½é€Ÿåº¦ (é™åˆ¶ç»ˆç«¯é€Ÿåº¦)
+    constexpr float PLAYER_HEIGHT = 1.0f;   // ç©å®¶é«˜åº¦ (ç”¨äºç¢°æ’/AABB)
+    constexpr float PLAYER_WIDTH = 1.0f;    // ç©å®¶å®½åº¦ (ç”¨äºç¢°æ’/AABB)
+    constexpr float PLAYER_DEPTH = 1.0f;    // ç©å®¶æ·±åº¦ (ç”¨äºç¢°æ’/AABB)
+    // ä¹‹åå¯ä»¥æ ¹æ®éœ€è¦æ·»åŠ æ›´å¤šå¸¸é‡ (ä¾‹å¦‚: åœ°é¢æ‘©æ“¦ç³»æ•°, ç©ºæ°”é˜»åŠ›ç³»æ•°ç­‰)
 }
 
-// ´ú±íÒ»¸öÖá¶ÔÆë°üÎ§ºĞ (Axis-Aligned Bounding Box) µÄ½á¹¹Ìå
+// ä»£è¡¨ä¸€ä¸ªè½´å¯¹é½åŒ…å›´ç›’ (Axis-Aligned Bounding Box) çš„ç»“æ„ä½“
 struct AABB {
-    Struct3D min; // °üÎ§ºĞµÄ×îĞ¡½Ç×ø±ê (x_min, y_min, z_min)
-    Struct3D max; // °üÎ§ºĞµÄ×î´ó½Ç×ø±ê (x_max, y_max, z_max)
+    Struct3D min; // åŒ…å›´ç›’çš„æœ€å°è§’åæ ‡ (x_min, y_min, z_min)
+    Struct3D max; // åŒ…å›´ç›’çš„æœ€å¤§è§’åæ ‡ (x_max, y_max, z_max)
 
-    // C++20: Ä¬ÈÏ±È½ÏÔËËã·û
+    // C++20: é»˜è®¤æ¯”è¾ƒè¿ç®—ç¬¦
     auto operator<=>(const AABB&) const = default;
 };
 
-// ¸¨Öúº¯Êı£º¸ù¾İÖĞĞÄµãºÍ³ß´ç´´½¨Ò»¸ö AABB
+// è¾…åŠ©å‡½æ•°ï¼šæ ¹æ®ä¸­å¿ƒç‚¹å’Œå°ºå¯¸åˆ›å»ºä¸€ä¸ª AABB
 inline AABB CreateAABB(const Struct3D& center, const Struct3D& size) {
-    Struct3D halfSize = size * 0.5f; // ¼ÆËã°ë³ß´ç
+    Struct3D halfSize = size * 0.5f; // è®¡ç®—åŠå°ºå¯¸
     return {
-        // ×îĞ¡½Ç = ÖĞĞÄ - °ë³ß´ç
+        // æœ€å°è§’ = ä¸­å¿ƒ - åŠå°ºå¯¸
         {center.x - halfSize.x, center.y - halfSize.y, center.z - halfSize.z},
-        // ×î´ó½Ç = ÖĞĞÄ + °ë³ß´ç
+        // æœ€å¤§è§’ = ä¸­å¿ƒ + åŠå°ºå¯¸
         {center.x + halfSize.x, center.y + halfSize.y, center.z + halfSize.z}
     };
 }
 
-// ¸¨Öúº¯Êı£º¸ù¾İÍæ¼Ò×´Ì¬»ñÈ¡Æäµ±Ç°µÄ AABB
+// è¾…åŠ©å‡½æ•°ï¼šæ ¹æ®ç©å®¶çŠ¶æ€è·å–å…¶å½“å‰çš„ AABB
 inline AABB GetPlayerAABB(const PlayerState& state) {
-    // ¼ÙÉèÍæ¼ÒµÄÎ»ÖÃ state.pos ÊÇÆä½Åµ×µÄÖĞĞÄµã
-    // ¼ÆËãÍæ¼Ò AABB µÄÖĞĞÄµã Y ×ø±ê
+    // å‡è®¾ç©å®¶çš„ä½ç½® state.pos æ˜¯å…¶è„šåº•çš„ä¸­å¿ƒç‚¹
+    // è®¡ç®—ç©å®¶ AABB çš„ä¸­å¿ƒç‚¹ Y åæ ‡
     Struct3D playerCenter = {
         state.pos.x,
-        state.pos.y + GameConstants::PLAYER_HEIGHT * 0.5f, // ÖĞĞÄ Y = Î»ÖÃ Y + °ë¸ß
+        state.pos.y + GameConstants::PLAYER_HEIGHT * 0.5f, // ä¸­å¿ƒ Y = ä½ç½® Y + åŠé«˜
         state.pos.z
     };
-    // »ñÈ¡Íæ¼ÒµÄ³ß´ç
+    // è·å–ç©å®¶çš„å°ºå¯¸
     Struct3D playerSize = {
         GameConstants::PLAYER_WIDTH,
         GameConstants::PLAYER_HEIGHT,
         GameConstants::PLAYER_DEPTH
     };
-    // Ê¹ÓÃ CreateAABB ´´½¨²¢·µ»Ø AABB
+    // ä½¿ç”¨ CreateAABB åˆ›å»ºå¹¶è¿”å› AABB
     return CreateAABB(playerCenter, playerSize);
 }
