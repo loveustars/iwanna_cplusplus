@@ -70,7 +70,7 @@ public:
     }
 
     // 接收消息，返回接收的字节数，并将消息内容和发送方地址存入参数
-    // 返回值: >0 表示成功接收的字节数，0 通常不可能在UDP阻塞模式下，<0 表示错误
+    // 返回值: >0 表示成功接收的字节数，0通常不可能在UDP阻塞模式下，<0 表示错误
     int ReceiveMessage(std::string& message, sockaddr_in& clientAddr) {
         if (listenSocket == INVALID_SOCKET) return -1;
 
@@ -84,7 +84,7 @@ public:
             return -1; // 返回错误码
         }
 
-        // 确保字符串是 null-terminated
+        // 确保字符串是null-terminated
         receiveBuffer[bytesReceived] = '\0';
         message = receiveBuffer; // 将C风格字符串转为std::string
 

@@ -5,8 +5,8 @@
 #include <chrono>               // 用于时间计算
 #include <thread>               // 用于线程休眠 (std::this_thread::sleep_for)（LLM建议）
 #include <iostream>
-#include <memory>               // 用于 std::make_shared 创建共享指针
-#include <optional>             // 用于 std::optional 处理可能不存在的值
+#include <memory>
+#include <optional>
 
 // 定义服务器监听的端口号
 constexpr short SERVER_PORT = 8888;
@@ -62,11 +62,9 @@ int main() {
             // 处理网络事件
             // 调用io_context.poll() 来处理所有当前已就绪的异步操作完成事件。GameHandler::ProcessInput可能会被调用，更新gameHandler输入状态。
             io_context.poll();
-
             // 获取最后客户端地址
             // 从NetworkManager获取最后一次成功收到消息的客户端地址，用于稍后发送游戏状态更新回去
             last_client_endpoint = networkManager->GetLastClientEndpoint();
-
             // 固定时间步长更新游戏逻辑
             // 使用while循环确保即使帧率波动，游戏逻辑也能以接近恒定的速率更新
             while (accumulator >= TARGET_DELTA_TIME) {
@@ -77,7 +75,6 @@ int main() {
                 accumulator -= TARGET_DELTA_TIME;
             }
             // 循环结束后，accumulator 中剩下的是不足一个步长的时间，会累加到下一帧
-
             // 发送游戏状态回客户端。检查是否知道要向哪个客户端发送状态 (是否收到过有效消息)
             if (last_client_endpoint) {
                 // 序列化
@@ -95,22 +92,20 @@ int main() {
                 }
             }
 
-
             // 防止CPU忙等
-            // 如果主循环运行得非常快（例如，没有游戏更新，网络事件很少）就短暂休眠一小段时间，将CPU时间让给其他进程，避免空转浪费资源
+            // 如果主循环运行得非常快就短暂休眠一小段时间，将CPU时间让给其他进程，避免空转浪费资源
             auto loop_end_time = std::chrono::high_resolution_clock::now();            // 获取循环结束时间
             std::chrono::duration<float> loop_duration = loop_end_time - current_time; // 计算本次循环耗时
             // 简单的休眠条件：如果累加器很小，且本次循环耗时也很短
             if (accumulator < TARGET_DELTA_TIME / 2.0f && loop_duration.count() < (TARGET_DELTA_TIME / 2.0f)) {
-                // 休眠 1 毫秒 (可以调整)
+                // 休眠1毫秒
                 std::this_thread::sleep_for(std::chrono::milliseconds(1));
             }
-            // 更复杂的休眠策略可以精确计算到下一次更新所需的时间并休眠
-        } // 主循环结束
+        }
 
     }
     catch (const std::exception& e) {
-        // 捕获标准库及 Asio 可能抛出的异常 (例如，端口绑定失败)
+        // 捕获标准库及Asio可能抛出的异常 (端口绑定失败)
         std::cerr << "[Main] Fatal Error: Exception caught: " << e.what() << std::endl;
         return 1; // 返回非零表示错误退出
     }
@@ -122,7 +117,7 @@ int main() {
 
     // 理论上不会执行到这里，除非循环被某种方式中断
     std::cout << "[Main] Server shutting down." << std::endl;
-    // 当 main 函数结束时，networkManager (shared_ptr) 会自动销毁，
-    // 其析构函数会负责关闭 socket 和清理资源 (Asio 对象自动管理)。
+    // 当 main 函数结束时，networkManager(shared_ptr)会自动销毁，
+    // 其析构函数会负责关闭socket和清理资源(Asio对象自动管理)。
     return 0; // 正常退出
 }

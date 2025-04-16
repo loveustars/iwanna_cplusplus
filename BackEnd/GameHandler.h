@@ -78,12 +78,11 @@ public:
         if (nowInput.moveBackward) tgVelocity.z -= MOVE_SPEED;
         if (nowInput.moveLeft) tgVelocity.x -= MOVE_SPEED;
         if (nowInput.moveRight) tgVelocity.x += MOVE_SPEED;
-        // (可选) 如果需要更平滑的移动，可以使用插值或加速度来改变速度，而不是直接设置
         // 这里为了简单，直接设置目标速度
         nowPlayerState.velocity.x = tgVelocity.x;
         nowPlayerState.velocity.z = tgVelocity.z;
 
-        // 2. 处理跳跃 (状态机逻辑: 只有在地面才能跳)
+        // 处理跳跃 (只有在地面才能跳)
         if (nowInput.jumpPressed && !nowPlayerState.isInAir) {
             nowPlayerState.velocity.y = JUMP_FORCE; // 施加向上的力
             nowPlayerState.isInAir = true;      // 离开地面
@@ -91,24 +90,18 @@ public:
         }
         // 重置跳跃键状态，确保只跳一次
         nowInput.jumpPressed = false;
-
-
-        // 3. 应用重力 (只在空中时)
+        // 应用重力 (只在空中时)
         if (nowPlayerState.isInAir) {
             nowPlayerState.velocity.y -= GRAVITY * deltaTime;
             // 限制最大下落速度
-            nowPlayerState.velocity.y = max(nowPlayerState.velocity.y, MIN_FALL_VELOCITY);
+            nowPlayerState.velocity.y = std::max(nowPlayerState.velocity.y, MIN_FALL_VELOCITY);
         }
-
-
-        // 4. 更新位置 (根据最终速度）
+        // 更新位置 (根据最终速度）
         nowPlayerState.pos += nowPlayerState.velocity * deltaTime;
 
 
-        // 5. 碰撞检测（目前只有地面）
-        //  --- 这是最基础的碰撞检测 ---
+        // 碰撞检测（目前只有地面）
         bool prevAir = nowPlayerState.isInAir; // 记录之前的状态
-
         if (nowPlayerState.pos.y <= GROUND_LEVEL && nowPlayerState.velocity.y <= 0) {
             // 如果玩家位置低于或等于地面，并且正在下落或静止
             nowPlayerState.pos.y = GROUND_LEVEL; // 修正位置到地面
@@ -125,9 +118,6 @@ public:
             }
             nowPlayerState.isInAir = true; // 不在地面
         }
-
-        // --- 真实游戏需要更复杂的碰撞检测，涉及关卡几何体 ---
-
     }
 
     // 获取当前游戏状态的字符串表示，用于发送给前端

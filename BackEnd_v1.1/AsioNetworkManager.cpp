@@ -2,7 +2,8 @@
 #include "GameHandler.h"
 
 
-
+// 处理接收到的原始数据 (此函数将反序列化并调用 GameHandler)
+// 将网络层的数据接收与游戏逻辑处理解耦
 void AsioNetworkManager::ProcessReceivedData(const std::string& data, const asio::ip::udp::endpoint& sender_endpoint) {
     // --- 序列化使用点 (反序列化) ---
     game_backend::ClientToServer client_msg; // 创建 Protobuf 消息对象
