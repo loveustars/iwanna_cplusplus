@@ -28,6 +28,7 @@
 #include "google/protobuf/message_lite.h"
 #include "google/protobuf/repeated_field.h"  // IWYU pragma: export
 #include "google/protobuf/extension_set.h"  // IWYU pragma: export
+#include "google/protobuf/generated_enum_reflection.h"
 #include "google/protobuf/unknown_field_set.h"
 // @@protoc_insertion_point(includes)
 
@@ -55,6 +56,9 @@ namespace game_backend {
 class ClientToServer;
 struct ClientToServerDefaultTypeInternal;
 extern ClientToServerDefaultTypeInternal _ClientToServer_default_instance_;
+class GameEvent;
+struct GameEventDefaultTypeInternal;
+extern GameEventDefaultTypeInternal _GameEvent_default_instance_;
 class GameState;
 struct GameStateDefaultTypeInternal;
 extern GameStateDefaultTypeInternal _GameState_default_instance_;
@@ -74,6 +78,39 @@ namespace protobuf {
 }  // namespace google
 
 namespace game_backend {
+enum GameEventType : int {
+  UNKNOWN_EVENT = 0,
+  RESET_GAME = 1,
+  GameEventType_INT_MIN_SENTINEL_DO_NOT_USE_ =
+      std::numeric_limits<::int32_t>::min(),
+  GameEventType_INT_MAX_SENTINEL_DO_NOT_USE_ =
+      std::numeric_limits<::int32_t>::max(),
+};
+
+bool GameEventType_IsValid(int value);
+extern const uint32_t GameEventType_internal_data_[];
+constexpr GameEventType GameEventType_MIN = static_cast<GameEventType>(0);
+constexpr GameEventType GameEventType_MAX = static_cast<GameEventType>(1);
+constexpr int GameEventType_ARRAYSIZE = 1 + 1;
+const ::google::protobuf::EnumDescriptor*
+GameEventType_descriptor();
+template <typename T>
+const std::string& GameEventType_Name(T value) {
+  static_assert(std::is_same<T, GameEventType>::value ||
+                    std::is_integral<T>::value,
+                "Incorrect type passed to GameEventType_Name().");
+  return GameEventType_Name(static_cast<GameEventType>(value));
+}
+template <>
+inline const std::string& GameEventType_Name(GameEventType value) {
+  return ::google::protobuf::internal::NameOfDenseEnum<GameEventType_descriptor,
+                                                 0, 1>(
+      static_cast<int>(value));
+}
+inline bool GameEventType_Parse(absl::string_view name, GameEventType* value) {
+  return ::google::protobuf::internal::ParseNamedEnum<GameEventType>(
+      GameEventType_descriptor(), name, value);
+}
 
 // ===================================================================
 
@@ -532,6 +569,196 @@ class PlayerInput final : public ::google::protobuf::Message
 };
 // -------------------------------------------------------------------
 
+class GameEvent final : public ::google::protobuf::Message
+/* @@protoc_insertion_point(class_definition:game_backend.GameEvent) */ {
+ public:
+  inline GameEvent() : GameEvent(nullptr) {}
+  ~GameEvent() PROTOBUF_FINAL;
+
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+  void operator delete(GameEvent* msg, std::destroying_delete_t) {
+    SharedDtor(*msg);
+    ::google::protobuf::internal::SizedDelete(msg, sizeof(GameEvent));
+  }
+#endif
+
+  template <typename = void>
+  explicit PROTOBUF_CONSTEXPR GameEvent(
+      ::google::protobuf::internal::ConstantInitialized);
+
+  inline GameEvent(const GameEvent& from) : GameEvent(nullptr, from) {}
+  inline GameEvent(GameEvent&& from) noexcept
+      : GameEvent(nullptr, std::move(from)) {}
+  inline GameEvent& operator=(const GameEvent& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline GameEvent& operator=(GameEvent&& from) noexcept {
+    if (this == &from) return *this;
+    if (::google::protobuf::internal::CanMoveWithInternalSwap(GetArena(), from.GetArena())) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const
+      ABSL_ATTRIBUTE_LIFETIME_BOUND {
+    return _internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance);
+  }
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields()
+      ABSL_ATTRIBUTE_LIFETIME_BOUND {
+    return _internal_metadata_.mutable_unknown_fields<::google::protobuf::UnknownFieldSet>();
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::google::protobuf::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::google::protobuf::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const GameEvent& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const GameEvent* internal_default_instance() {
+    return reinterpret_cast<const GameEvent*>(
+        &_GameEvent_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages = 3;
+  friend void swap(GameEvent& a, GameEvent& b) { a.Swap(&b); }
+  inline void Swap(GameEvent* other) {
+    if (other == this) return;
+    if (::google::protobuf::internal::CanUseInternalSwap(GetArena(), other->GetArena())) {
+      InternalSwap(other);
+    } else {
+      ::google::protobuf::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(GameEvent* other) {
+    if (other == this) return;
+    ABSL_DCHECK(GetArena() == other->GetArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  GameEvent* New(::google::protobuf::Arena* arena = nullptr) const {
+    return ::google::protobuf::Message::DefaultConstruct<GameEvent>(arena);
+  }
+  using ::google::protobuf::Message::CopyFrom;
+  void CopyFrom(const GameEvent& from);
+  using ::google::protobuf::Message::MergeFrom;
+  void MergeFrom(const GameEvent& from) { GameEvent::MergeImpl(*this, from); }
+
+  private:
+  static void MergeImpl(
+      ::google::protobuf::MessageLite& to_msg,
+      const ::google::protobuf::MessageLite& from_msg);
+
+  public:
+  bool IsInitialized() const {
+    return true;
+  }
+  ABSL_ATTRIBUTE_REINITIALIZES void Clear() PROTOBUF_FINAL;
+  #if defined(PROTOBUF_CUSTOM_VTABLE)
+  private:
+  static ::size_t ByteSizeLong(const ::google::protobuf::MessageLite& msg);
+  static ::uint8_t* _InternalSerialize(
+      const MessageLite& msg, ::uint8_t* target,
+      ::google::protobuf::io::EpsCopyOutputStream* stream);
+
+  public:
+  ::size_t ByteSizeLong() const { return ByteSizeLong(*this); }
+  ::uint8_t* _InternalSerialize(
+      ::uint8_t* target,
+      ::google::protobuf::io::EpsCopyOutputStream* stream) const {
+    return _InternalSerialize(*this, target, stream);
+  }
+  #else   // PROTOBUF_CUSTOM_VTABLE
+  ::size_t ByteSizeLong() const final;
+  ::uint8_t* _InternalSerialize(
+      ::uint8_t* target,
+      ::google::protobuf::io::EpsCopyOutputStream* stream) const final;
+  #endif  // PROTOBUF_CUSTOM_VTABLE
+  int GetCachedSize() const { return _impl_._cached_size_.Get(); }
+
+  private:
+  void SharedCtor(::google::protobuf::Arena* arena);
+  static void SharedDtor(MessageLite& self);
+  void InternalSwap(GameEvent* other);
+ private:
+  template <typename T>
+  friend ::absl::string_view(
+      ::google::protobuf::internal::GetAnyMessageName)();
+  static ::absl::string_view FullMessageName() { return "game_backend.GameEvent"; }
+
+ protected:
+  explicit GameEvent(::google::protobuf::Arena* arena);
+  GameEvent(::google::protobuf::Arena* arena, const GameEvent& from);
+  GameEvent(::google::protobuf::Arena* arena, GameEvent&& from) noexcept
+      : GameEvent(arena) {
+    *this = ::std::move(from);
+  }
+  const ::google::protobuf::internal::ClassData* GetClassData() const PROTOBUF_FINAL;
+  static void* PlacementNew_(const void*, void* mem,
+                             ::google::protobuf::Arena* arena);
+  static constexpr auto InternalNewImpl_();
+  static const ::google::protobuf::internal::ClassDataFull _class_data_;
+
+ public:
+  ::google::protobuf::Metadata GetMetadata() const;
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+  enum : int {
+    kTypeFieldNumber = 1,
+  };
+  // .game_backend.GameEventType type = 1;
+  void clear_type() ;
+  ::game_backend::GameEventType type() const;
+  void set_type(::game_backend::GameEventType value);
+
+  private:
+  ::game_backend::GameEventType _internal_type() const;
+  void _internal_set_type(::game_backend::GameEventType value);
+
+  public:
+  // @@protoc_insertion_point(class_scope:game_backend.GameEvent)
+ private:
+  class _Internal;
+  friend class ::google::protobuf::internal::TcParser;
+  static const ::google::protobuf::internal::TcParseTable<
+      0, 1, 0,
+      0, 2>
+      _table_;
+
+  friend class ::google::protobuf::MessageLite;
+  friend class ::google::protobuf::Arena;
+  template <typename T>
+  friend class ::google::protobuf::Arena::InternalHelper;
+  using InternalArenaConstructable_ = void;
+  using DestructorSkippable_ = void;
+  struct Impl_ {
+    inline explicit constexpr Impl_(
+        ::google::protobuf::internal::ConstantInitialized) noexcept;
+    inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
+                          ::google::protobuf::Arena* arena);
+    inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
+                          ::google::protobuf::Arena* arena, const Impl_& from,
+                          const GameEvent& from_msg);
+    int type_;
+    ::google::protobuf::internal::CachedSize _cached_size_;
+    PROTOBUF_TSAN_DECLARE_MEMBER
+  };
+  union { Impl_ _impl_; };
+  friend struct ::TableStruct_messages_2eproto;
+};
+// -------------------------------------------------------------------
+
 class GameState final : public ::google::protobuf::Message
 /* @@protoc_insertion_point(class_definition:game_backend.GameState) */ {
  public:
@@ -681,6 +908,7 @@ class GameState final : public ::google::protobuf::Message
     kPositionFieldNumber = 1,
     kVelocityFieldNumber = 2,
     kIsInAirFieldNumber = 3,
+    kHasWonFieldNumber = 4,
   };
   // .game_backend.Vector3 position = 1;
   bool has_position() const;
@@ -722,12 +950,22 @@ class GameState final : public ::google::protobuf::Message
   void _internal_set_is_in_air(bool value);
 
   public:
+  // bool has_won = 4;
+  void clear_has_won() ;
+  bool has_won() const;
+  void set_has_won(bool value);
+
+  private:
+  bool _internal_has_won() const;
+  void _internal_set_has_won(bool value);
+
+  public:
   // @@protoc_insertion_point(class_scope:game_backend.GameState)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
   static const ::google::protobuf::internal::TcParseTable<
-      2, 3, 2,
+      2, 4, 2,
       0, 2>
       _table_;
 
@@ -750,6 +988,7 @@ class GameState final : public ::google::protobuf::Message
     ::game_backend::Vector3* position_;
     ::game_backend::Vector3* velocity_;
     bool is_in_air_;
+    bool has_won_;
     PROTOBUF_TSAN_DECLARE_MEMBER
   };
   union { Impl_ _impl_; };
@@ -814,13 +1053,14 @@ class ClientToServer final : public ::google::protobuf::Message
   }
   enum PayloadCase {
     kInput = 1,
+    kEvent = 2,
     PAYLOAD_NOT_SET = 0,
   };
   static inline const ClientToServer* internal_default_instance() {
     return reinterpret_cast<const ClientToServer*>(
         &_ClientToServer_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 3;
+  static constexpr int kIndexInFileMessages = 4;
   friend void swap(ClientToServer& a, ClientToServer& b) { a.Swap(&b); }
   inline void Swap(ClientToServer* other) {
     if (other == this) return;
@@ -908,6 +1148,7 @@ class ClientToServer final : public ::google::protobuf::Message
   // accessors -------------------------------------------------------
   enum : int {
     kInputFieldNumber = 1,
+    kEventFieldNumber = 2,
   };
   // .game_backend.PlayerInput input = 1;
   bool has_input() const;
@@ -928,17 +1169,37 @@ class ClientToServer final : public ::google::protobuf::Message
   ::game_backend::PlayerInput* _internal_mutable_input();
 
   public:
+  // .game_backend.GameEvent event = 2;
+  bool has_event() const;
+  private:
+  bool _internal_has_event() const;
+
+  public:
+  void clear_event() ;
+  const ::game_backend::GameEvent& event() const;
+  PROTOBUF_NODISCARD ::game_backend::GameEvent* release_event();
+  ::game_backend::GameEvent* mutable_event();
+  void set_allocated_event(::game_backend::GameEvent* value);
+  void unsafe_arena_set_allocated_event(::game_backend::GameEvent* value);
+  ::game_backend::GameEvent* unsafe_arena_release_event();
+
+  private:
+  const ::game_backend::GameEvent& _internal_event() const;
+  ::game_backend::GameEvent* _internal_mutable_event();
+
+  public:
   void clear_payload();
   PayloadCase payload_case() const;
   // @@protoc_insertion_point(class_scope:game_backend.ClientToServer)
  private:
   class _Internal;
   void set_has_input();
+  void set_has_event();
   inline bool has_payload() const;
   inline void clear_has_payload();
   friend class ::google::protobuf::internal::TcParser;
   static const ::google::protobuf::internal::TcParseTable<
-      0, 1, 1,
+      0, 2, 2,
       0, 2>
       _table_;
 
@@ -960,6 +1221,7 @@ class ClientToServer final : public ::google::protobuf::Message
       constexpr PayloadUnion() : _constinit_{} {}
       ::google::protobuf::internal::ConstantInitialized _constinit_;
       ::game_backend::PlayerInput* input_;
+      ::game_backend::GameEvent* event_;
     } payload_;
     ::google::protobuf::internal::CachedSize _cached_size_;
     ::uint32_t _oneof_case_[1];
@@ -1027,13 +1289,14 @@ class ServerToClient final : public ::google::protobuf::Message
   }
   enum PayloadCase {
     kState = 1,
+    kEvent = 2,
     PAYLOAD_NOT_SET = 0,
   };
   static inline const ServerToClient* internal_default_instance() {
     return reinterpret_cast<const ServerToClient*>(
         &_ServerToClient_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 4;
+  static constexpr int kIndexInFileMessages = 5;
   friend void swap(ServerToClient& a, ServerToClient& b) { a.Swap(&b); }
   inline void Swap(ServerToClient* other) {
     if (other == this) return;
@@ -1121,6 +1384,7 @@ class ServerToClient final : public ::google::protobuf::Message
   // accessors -------------------------------------------------------
   enum : int {
     kStateFieldNumber = 1,
+    kEventFieldNumber = 2,
   };
   // .game_backend.GameState state = 1;
   bool has_state() const;
@@ -1141,17 +1405,37 @@ class ServerToClient final : public ::google::protobuf::Message
   ::game_backend::GameState* _internal_mutable_state();
 
   public:
+  // .game_backend.GameEvent event = 2;
+  bool has_event() const;
+  private:
+  bool _internal_has_event() const;
+
+  public:
+  void clear_event() ;
+  const ::game_backend::GameEvent& event() const;
+  PROTOBUF_NODISCARD ::game_backend::GameEvent* release_event();
+  ::game_backend::GameEvent* mutable_event();
+  void set_allocated_event(::game_backend::GameEvent* value);
+  void unsafe_arena_set_allocated_event(::game_backend::GameEvent* value);
+  ::game_backend::GameEvent* unsafe_arena_release_event();
+
+  private:
+  const ::game_backend::GameEvent& _internal_event() const;
+  ::game_backend::GameEvent* _internal_mutable_event();
+
+  public:
   void clear_payload();
   PayloadCase payload_case() const;
   // @@protoc_insertion_point(class_scope:game_backend.ServerToClient)
  private:
   class _Internal;
   void set_has_state();
+  void set_has_event();
   inline bool has_payload() const;
   inline void clear_has_payload();
   friend class ::google::protobuf::internal::TcParser;
   static const ::google::protobuf::internal::TcParseTable<
-      0, 1, 1,
+      0, 2, 2,
       0, 2>
       _table_;
 
@@ -1173,6 +1457,7 @@ class ServerToClient final : public ::google::protobuf::Message
       constexpr PayloadUnion() : _constinit_{} {}
       ::google::protobuf::internal::ConstantInitialized _constinit_;
       ::game_backend::GameState* state_;
+      ::game_backend::GameEvent* event_;
     } payload_;
     ::google::protobuf::internal::CachedSize _cached_size_;
     ::uint32_t _oneof_case_[1];
@@ -1596,6 +1881,54 @@ inline void GameState::_internal_set_is_in_air(bool value) {
   _impl_.is_in_air_ = value;
 }
 
+// bool has_won = 4;
+inline void GameState::clear_has_won() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.has_won_ = false;
+}
+inline bool GameState::has_won() const {
+  // @@protoc_insertion_point(field_get:game_backend.GameState.has_won)
+  return _internal_has_won();
+}
+inline void GameState::set_has_won(bool value) {
+  _internal_set_has_won(value);
+  // @@protoc_insertion_point(field_set:game_backend.GameState.has_won)
+}
+inline bool GameState::_internal_has_won() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.has_won_;
+}
+inline void GameState::_internal_set_has_won(bool value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.has_won_ = value;
+}
+
+// -------------------------------------------------------------------
+
+// GameEvent
+
+// .game_backend.GameEventType type = 1;
+inline void GameEvent::clear_type() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.type_ = 0;
+}
+inline ::game_backend::GameEventType GameEvent::type() const {
+  // @@protoc_insertion_point(field_get:game_backend.GameEvent.type)
+  return _internal_type();
+}
+inline void GameEvent::set_type(::game_backend::GameEventType value) {
+  _internal_set_type(value);
+  // @@protoc_insertion_point(field_set:game_backend.GameEvent.type)
+}
+inline ::game_backend::GameEventType GameEvent::_internal_type() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return static_cast<::game_backend::GameEventType>(_impl_.type_);
+}
+inline void GameEvent::_internal_set_type(::game_backend::GameEventType value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.type_ = value;
+}
+
 // -------------------------------------------------------------------
 
 // ClientToServer
@@ -1676,6 +2009,85 @@ inline ::game_backend::PlayerInput* ClientToServer::_internal_mutable_input() {
 inline ::game_backend::PlayerInput* ClientToServer::mutable_input() ABSL_ATTRIBUTE_LIFETIME_BOUND {
   ::game_backend::PlayerInput* _msg = _internal_mutable_input();
   // @@protoc_insertion_point(field_mutable:game_backend.ClientToServer.input)
+  return _msg;
+}
+
+// .game_backend.GameEvent event = 2;
+inline bool ClientToServer::has_event() const {
+  return payload_case() == kEvent;
+}
+inline bool ClientToServer::_internal_has_event() const {
+  return payload_case() == kEvent;
+}
+inline void ClientToServer::set_has_event() {
+  _impl_._oneof_case_[0] = kEvent;
+}
+inline void ClientToServer::clear_event() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  if (payload_case() == kEvent) {
+    if (GetArena() == nullptr) {
+      delete _impl_.payload_.event_;
+    } else if (::google::protobuf::internal::DebugHardenClearOneofMessageOnArena()) {
+      ::google::protobuf::internal::MaybePoisonAfterClear(_impl_.payload_.event_);
+    }
+    clear_has_payload();
+  }
+}
+inline ::game_backend::GameEvent* ClientToServer::release_event() {
+  // @@protoc_insertion_point(field_release:game_backend.ClientToServer.event)
+  if (payload_case() == kEvent) {
+    clear_has_payload();
+    auto* temp = _impl_.payload_.event_;
+    if (GetArena() != nullptr) {
+      temp = ::google::protobuf::internal::DuplicateIfNonNull(temp);
+    }
+    _impl_.payload_.event_ = nullptr;
+    return temp;
+  } else {
+    return nullptr;
+  }
+}
+inline const ::game_backend::GameEvent& ClientToServer::_internal_event() const {
+  return payload_case() == kEvent ? *_impl_.payload_.event_ : reinterpret_cast<::game_backend::GameEvent&>(::game_backend::_GameEvent_default_instance_);
+}
+inline const ::game_backend::GameEvent& ClientToServer::event() const ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_get:game_backend.ClientToServer.event)
+  return _internal_event();
+}
+inline ::game_backend::GameEvent* ClientToServer::unsafe_arena_release_event() {
+  // @@protoc_insertion_point(field_unsafe_arena_release:game_backend.ClientToServer.event)
+  if (payload_case() == kEvent) {
+    clear_has_payload();
+    auto* temp = _impl_.payload_.event_;
+    _impl_.payload_.event_ = nullptr;
+    return temp;
+  } else {
+    return nullptr;
+  }
+}
+inline void ClientToServer::unsafe_arena_set_allocated_event(::game_backend::GameEvent* value) {
+  // We rely on the oneof clear method to free the earlier contents
+  // of this oneof. We can directly use the pointer we're given to
+  // set the new value.
+  clear_payload();
+  if (value) {
+    set_has_event();
+    _impl_.payload_.event_ = value;
+  }
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:game_backend.ClientToServer.event)
+}
+inline ::game_backend::GameEvent* ClientToServer::_internal_mutable_event() {
+  if (payload_case() != kEvent) {
+    clear_payload();
+    set_has_event();
+    _impl_.payload_.event_ =
+        ::google::protobuf::Message::DefaultConstruct<::game_backend::GameEvent>(GetArena());
+  }
+  return _impl_.payload_.event_;
+}
+inline ::game_backend::GameEvent* ClientToServer::mutable_event() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  ::game_backend::GameEvent* _msg = _internal_mutable_event();
+  // @@protoc_insertion_point(field_mutable:game_backend.ClientToServer.event)
   return _msg;
 }
 
@@ -1771,6 +2183,85 @@ inline ::game_backend::GameState* ServerToClient::mutable_state() ABSL_ATTRIBUTE
   return _msg;
 }
 
+// .game_backend.GameEvent event = 2;
+inline bool ServerToClient::has_event() const {
+  return payload_case() == kEvent;
+}
+inline bool ServerToClient::_internal_has_event() const {
+  return payload_case() == kEvent;
+}
+inline void ServerToClient::set_has_event() {
+  _impl_._oneof_case_[0] = kEvent;
+}
+inline void ServerToClient::clear_event() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  if (payload_case() == kEvent) {
+    if (GetArena() == nullptr) {
+      delete _impl_.payload_.event_;
+    } else if (::google::protobuf::internal::DebugHardenClearOneofMessageOnArena()) {
+      ::google::protobuf::internal::MaybePoisonAfterClear(_impl_.payload_.event_);
+    }
+    clear_has_payload();
+  }
+}
+inline ::game_backend::GameEvent* ServerToClient::release_event() {
+  // @@protoc_insertion_point(field_release:game_backend.ServerToClient.event)
+  if (payload_case() == kEvent) {
+    clear_has_payload();
+    auto* temp = _impl_.payload_.event_;
+    if (GetArena() != nullptr) {
+      temp = ::google::protobuf::internal::DuplicateIfNonNull(temp);
+    }
+    _impl_.payload_.event_ = nullptr;
+    return temp;
+  } else {
+    return nullptr;
+  }
+}
+inline const ::game_backend::GameEvent& ServerToClient::_internal_event() const {
+  return payload_case() == kEvent ? *_impl_.payload_.event_ : reinterpret_cast<::game_backend::GameEvent&>(::game_backend::_GameEvent_default_instance_);
+}
+inline const ::game_backend::GameEvent& ServerToClient::event() const ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_get:game_backend.ServerToClient.event)
+  return _internal_event();
+}
+inline ::game_backend::GameEvent* ServerToClient::unsafe_arena_release_event() {
+  // @@protoc_insertion_point(field_unsafe_arena_release:game_backend.ServerToClient.event)
+  if (payload_case() == kEvent) {
+    clear_has_payload();
+    auto* temp = _impl_.payload_.event_;
+    _impl_.payload_.event_ = nullptr;
+    return temp;
+  } else {
+    return nullptr;
+  }
+}
+inline void ServerToClient::unsafe_arena_set_allocated_event(::game_backend::GameEvent* value) {
+  // We rely on the oneof clear method to free the earlier contents
+  // of this oneof. We can directly use the pointer we're given to
+  // set the new value.
+  clear_payload();
+  if (value) {
+    set_has_event();
+    _impl_.payload_.event_ = value;
+  }
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:game_backend.ServerToClient.event)
+}
+inline ::game_backend::GameEvent* ServerToClient::_internal_mutable_event() {
+  if (payload_case() != kEvent) {
+    clear_payload();
+    set_has_event();
+    _impl_.payload_.event_ =
+        ::google::protobuf::Message::DefaultConstruct<::game_backend::GameEvent>(GetArena());
+  }
+  return _impl_.payload_.event_;
+}
+inline ::game_backend::GameEvent* ServerToClient::mutable_event() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  ::game_backend::GameEvent* _msg = _internal_mutable_event();
+  // @@protoc_insertion_point(field_mutable:game_backend.ServerToClient.event)
+  return _msg;
+}
+
 inline bool ServerToClient::has_payload() const {
   return payload_case() != PAYLOAD_NOT_SET;
 }
@@ -1787,6 +2278,19 @@ inline ServerToClient::PayloadCase ServerToClient::payload_case() const {
 // @@protoc_insertion_point(namespace_scope)
 }  // namespace game_backend
 
+
+namespace google {
+namespace protobuf {
+
+template <>
+struct is_proto_enum<::game_backend::GameEventType> : std::true_type {};
+template <>
+inline const EnumDescriptor* GetEnumDescriptor<::game_backend::GameEventType>() {
+  return ::game_backend::GameEventType_descriptor();
+}
+
+}  // namespace protobuf
+}  // namespace google
 
 // @@protoc_insertion_point(global_scope)
 

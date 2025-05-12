@@ -1,46 +1,62 @@
 // messages.proto
-syntax = "proto3"; // 指定使用 proto3 语法
+syntax = "proto3";
 
-package game_backend; // 可选: 使用包名防止命名冲突
+package game_backend;
 
-// 基础 3D 向量结构
+// 代表一个三维向量 (用于位置、速度等)
 message Vector3 {
   float x = 1;
   float y = 2;
   float z = 3;
 }
 
-// 代表从客户端 (Unity) 发送过来的输入状态
+// 代表玩家的输入状态
 message PlayerInput {
-  bool move_forward = 1;  // 是否向前移动
-  bool move_backward = 2; // 是否向后移动
-  bool move_left = 3;     // 是否向左移动
-  bool move_right = 4;    // 是否向右移动
-  bool jump_pressed = 5; // 本帧是否有跳跃意图 (按下跳跃键)
+  bool move_forward = 1;
+  bool move_backward = 2;
+  bool move_left = 3;
+  bool move_right = 4;
+  bool jump_pressed = 5; // 跳跃键是否被按下
 }
 
-// 代表从服务器 (C++) 发送给客户端的游戏状态
+// 代表游戏的核心状态，由服务器发送给客户端
 message GameState {
-  Vector3 position = 1;   // 玩家当前位置
-  Vector3 velocity = 2;   // 玩家当前速度
-  bool is_in_air = 3;     // 玩家当前是否在空中
-  // 之后可以在这里添加其他必要的状态信息 (例如：分数、生命值、场景物体状态等)
+  Vector3 position = 1;   // 玩家位置
+  Vector3 velocity = 2;   // 玩家速度
+  bool is_in_air = 3;     // 玩家是否在空中
+  bool has_won = 4;       // 玩家是否已胜利
 }
 
-// 客户端到服务器通信的顶层消息封装
+// 定义游戏事件类型
+enum GameEventType {
+  UNKNOWN_EVENT = 0; // 未知事件
+  RESET_GAME = 1;    // 客户端请求重置游戏
+  // 未来可以添加更多事件类型，例如 PAUSE_GAME, RESUME_GAME 等
+}
+
+// 代表一个游戏事件，可以由客户端发送给服务器，或服务器发送给客户端
+message GameEvent {
+  GameEventType type = 1; // 事件类型
+  // 未来可以根据事件类型添加更多相关数据
+  // 例如：如果 type 是 PLAYER_DIED，可以包含死亡原因或位置
+  // string details = 2;
+}
+
+
+// 客户端发送给服务器的消息
+// 使用 oneof 允许多种消息类型
 message ClientToServer {
-  // 使用 'oneof' 可以在未来添加其他消息类型，同时保持向后兼容性
   oneof payload {
-    PlayerInput input = 1; // 包含玩家输入信息
-    // 例如: RequestRespawn respawn_request = 2; // 请求重生消息
+    PlayerInput input = 1; // 玩家输入数据
+    GameEvent event = 2;   // 客户端发起的事件，例如请求重置游戏
   }
 }
 
-// 服务器到客户端通信的顶层消息封装
+// 服务器发送给客户端的消息
+// 使用 oneof 允许多种消息类型
 message ServerToClient {
   oneof payload {
-    GameState state = 1; // 包含游戏状态信息
-    // 例如: PlayerDiedEvent death_event = 2; // 玩家死亡事件
-    // 例如: LevelCompleteEvent level_complete = 3; // 关卡完成事件
+    GameState state = 1; // 游戏状态数据
+    GameEvent event = 2; // 服务器发起的事件，例如通知游戏结束
   }
 }

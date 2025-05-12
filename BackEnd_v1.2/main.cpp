@@ -104,6 +104,12 @@ int main() {
         }
 
     }
+    // 增加catch模块捕获端口占用错误
+    catch (const std::runtime_error& e) {
+        std::cerr << "[Main] Runtime Error: " << e.what() << std::endl;
+        std::cerr << "Please ensure that port " << SERVER_PORT << " is not in use by another application." << std::endl;
+        return 1;
+    }
     catch (const std::exception& e) {
         // 捕获标准库及Asio可能抛出的异常 (端口绑定失败)
         std::cerr << "[Main] Fatal Error: Exception caught: " << e.what() << std::endl;
