@@ -9,7 +9,7 @@
 #include <optional>
 
 // 定义服务器监听的端口号
-constexpr short SERVER_PORT = 8888;
+constexpr short SERVER_PORT = 12034;
 // 定义目标游戏逻辑更新频率 (例如，每秒 60 次)
 constexpr float TARGET_UPDATES_PER_SECOND = 60.0f;
 // 计算出每次固定更新的时间步长 (delta time)

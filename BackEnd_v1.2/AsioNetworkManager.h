@@ -14,7 +14,7 @@
 #include <optional>   // 用std::optional
 
 // 为UDP的包定义一个合理的缓冲区大小
-const int UDP_BUFFER_SIZE = 1024; // 可以根据需要调整
+const int UDP_BUFFER_SIZE = 1048576; // 可以根据需要调整
 // 前向声明GameHandler类，否则有的函数不知道有这个类
 class GameHandler;
 

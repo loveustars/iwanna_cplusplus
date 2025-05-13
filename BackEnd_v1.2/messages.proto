@@ -1,62 +1,47 @@
-// messages.proto
 syntax = "proto3";
 
 package game_backend;
 
-// 代表一个三维向量 (用于位置、速度等)
 message Vector3 {
   float x = 1;
   float y = 2;
   float z = 3;
 }
 
-// 代表玩家的输入状态
 message PlayerInput {
   bool move_forward = 1;
   bool move_backward = 2;
   bool move_left = 3;
   bool move_right = 4;
-  bool jump_pressed = 5; // 跳跃键是否被按下
+  bool jump_pressed = 5;
 }
 
-// 代表游戏的核心状态，由服务器发送给客户端
 message GameState {
-  Vector3 position = 1;   // 玩家位置
-  Vector3 velocity = 2;   // 玩家速度
-  bool is_in_air = 3;     // 玩家是否在空中
-  bool has_won = 4;       // 玩家是否已胜利
+  Vector3 position = 1;
+  Vector3 velocity = 2;
+  bool is_in_air = 3;
+  bool has_won = 4;
 }
 
-// 定义游戏事件类型
 enum GameEventType {
-  UNKNOWN_EVENT = 0; // 未知事件
-  RESET_GAME = 1;    // 客户端请求重置游戏
-  // 未来可以添加更多事件类型，例如 PAUSE_GAME, RESUME_GAME 等
+  UNKNOWN_EVENT = 0;
+  RESET_GAME = 1;
 }
 
-// 代表一个游戏事件，可以由客户端发送给服务器，或服务器发送给客户端
 message GameEvent {
-  GameEventType type = 1; // 事件类型
-  // 未来可以根据事件类型添加更多相关数据
-  // 例如：如果 type 是 PLAYER_DIED，可以包含死亡原因或位置
-  // string details = 2;
+  GameEventType type = 1;
 }
 
-
-// 客户端发送给服务器的消息
-// 使用 oneof 允许多种消息类型
 message ClientToServer {
   oneof payload {
-    PlayerInput input = 1; // 玩家输入数据
-    GameEvent event = 2;   // 客户端发起的事件，例如请求重置游戏
+    PlayerInput input = 1;
+    GameEvent event = 2;
   }
 }
 
-// 服务器发送给客户端的消息
-// 使用 oneof 允许多种消息类型
 message ServerToClient {
   oneof payload {
-    GameState state = 1; // 游戏状态数据
-    GameEvent event = 2; // 服务器发起的事件，例如通知游戏结束
+    GameState state = 1;
+    GameEvent event = 2;
   }
 }

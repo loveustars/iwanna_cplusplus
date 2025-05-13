@@ -47,25 +47,33 @@ AsioNetworkManager::AsioNetworkManager(asio::io_context& io_context, short port,
 // 处理接收到的原始数据 (此函数将反序列化并调用 GameHandler)
 // 将网络层的数据接收与游戏逻辑处理解耦
 void AsioNetworkManager::ProcessReceivedData(const std::string& data, const asio::ip::udp::endpoint& sender_endpoint) {
-    // --- 序列化使用点 (反序列化) ---
+    std::cout << "[Network] ProcessReceivedData ENTERED. Data length: " << data.length() << ", Received from: " << sender_endpoint << std::endl;
+    std::cout << "[Network] Raw data (hex): ";
+    for (size_t i = 0; i < data.length(); ++i) {
+        std::cout << std::hex << std::setw(2) << std::setfill('0') << (static_cast<int>(data[i]) & 0xFF) << " ";
+    }
+    std::cout << std::dec << std::endl; // 恢复十进制输出
+    std::cout << "[Network] ProcessReceivedData: Exiting safely (after basic cout)." << std::endl; // 新增退出点
     game_backend::ClientToServer client_msg; // 创建 Protobuf 消息对象
-
+    std::cout << "[Network] Received " << data.length() << " bytes from " << sender_endpoint << std::endl;
+    
+    
     // 尝试从接收到的二进制数据 (std::string) 解析填充消息对象
     if (!client_msg.ParseFromString(data)) {
-        // 解析失败，说明数据损坏或格式不符
         std::cerr << "[Network] Error: Failed to parse message from "
             << sender_endpoint.address().to_string() << ":" << sender_endpoint.port() << std::endl;
-        return; // 忽略格式错误的消息
+        return;
     }
-
-    // 成功解析
-    // 记录最后一次成功通信的客户端端点
+    
+    // 成功解析后，可以安全地认为 sender_endpoint 是一个我们想记录的来源
     last_valid_sender_endpoint_ = sender_endpoint;
 
+    std::cout << "[Network] Parsed message successfully. DebugString: " << client_msg.DebugString() << std::endl;
+    
     // 检查 'oneof' 负载中具体是哪种消息类型
-    if (client_msg.has_input()) { // 如果消息包含玩家输入
-        const game_backend::PlayerInput& input_payload = client_msg.input(); // 获取输入数据
-
+    if (client_msg.has_input()) {
+        const game_backend::PlayerInput& input_payload = client_msg.input();
+        std::cout << "[Network] Message has input payload." << std::endl;
         // 将 Protobuf 的输入结构 转换为 我们内部使用的 PlayerInputState 结构
         PlayerInputState input_state;
         input_state.moveForward = input_payload.move_forward();
@@ -77,13 +85,16 @@ void AsioNetworkManager::ProcessReceivedData(const std::string& data, const asio
         // 将结构化的输入数据传递给 GameHandler 进行处理
         game_handler_.ProcessInput(input_state);
 
-    } // else if (client_msg.has_other_message_type()) { ... } // 可以扩展处理其他消息类型
-    else {
+    }
+    else if (client_msg.has_event()) {
+        const game_backend::GameEvent& event_payload = client_msg.event();
+        std::cout << "[Network] Message has event payload: " << event_payload.type() << std::endl;
+    } else {
         // 收到了未知的或空的消息类型
         std::cerr << "[Network] Warning: Received unknown or empty message type from client "
             << sender_endpoint.address().to_string() << ":" << sender_endpoint.port() << std::endl;
     }
-} 
+}
 
 void AsioNetworkManager::StartReceive() {
     auto self = weak_from_this(); // 使用weak_ptr确保安全
@@ -121,8 +132,10 @@ std::optional<asio::ip::udp::endpoint> AsioNetworkManager::GetLastClientEndpoint
 
 void AsioNetworkManager::HandleReceive(const asio::error_code& error, std::size_t transdBytes) {
     if (!error || error == asio::error::message_size) {
-        if (transdBytes > 0) {
+        if (transdBytes > 0 && transdBytes <= receive_buffer_.size()) { // 增加边界检查
+            // 确保 transdBytes 不超过 receive_buffer_ 的实际大小
             std::string received_message(receive_buffer_.data(), transdBytes);
+            std::cout << "[Network] HandleReceive: transdBytes = " << transdBytes << std::endl; // 调试打印
             ProcessReceivedData(received_message, remote_endpoint_);
         }
         else {
