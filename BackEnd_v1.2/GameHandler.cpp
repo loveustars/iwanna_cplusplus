@@ -1,6 +1,7 @@
 // GameHandler.cpp
 
 #include "GameHandler.h"
+#include "AsioNetworkManager.h"
 // AsioNetworkManager.h 包含在 GameHandler.h 中，这里不需要重复包含，
 // 但如果 GameHandler.cpp 中直接使用了 AsioNetworkManager 的具体成员，则可能需要
 // #include "AsioNetworkManager.h" // 确保 AsioNetworkManager 的完整定义可见

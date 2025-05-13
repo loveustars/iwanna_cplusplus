@@ -14,7 +14,7 @@
 #include <optional>   // 用std::optional
 
 // 为UDP的包定义一个合理的缓冲区大小
-const int UDP_BUFFER_SIZE = 1048576; // 可以根据需要调整
+const int UDP_BUFFER_SIZE = 1024; // 可以根据需要调整
 // 前向声明GameHandler类，否则有的函数不知道有这个类
 class GameHandler;
 
@@ -62,7 +62,7 @@ private:
     // 用于存储接收消息时客户端的端点信息
     asio::ip::udp::endpoint remote_endpoint_;
     // 用于接收数据的固定大小缓冲区
-    std::array<char, UDP_BUFFER_SIZE> receive_buffer_;
+    std::array<char, 16384> receive_buffer_ = {};
     // GameHandler引用，用于调用其处理接收到的数据
     GameHandler& game_handler_;
     // 标记初始化是否成功的布尔值

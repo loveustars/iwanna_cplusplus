@@ -1,0 +1,47 @@
+syntax = "proto3";
+
+package game_backend;
+
+message Vector3 {
+  float x = 1;
+  float y = 2;
+  float z = 3;
+}
+
+message PlayerInput {
+  bool move_forward = 1;
+  bool move_backward = 2;
+  bool move_left = 3;
+  bool move_right = 4;
+  bool jump_pressed = 5;
+}
+
+message GameState {
+  Vector3 position = 1;
+  Vector3 velocity = 2;
+  bool is_in_air = 3;
+  bool has_won = 4;
+}
+
+enum GameEventType {
+  UNKNOWN_EVENT = 0;
+  RESET_GAME = 1;
+}
+
+message GameEvent {
+  GameEventType type = 1;
+}
+
+message ClientToServer {
+  oneof payload {
+    PlayerInput input = 1;
+    GameEvent event = 2;
+  }
+}
+
+message ServerToClient {
+  oneof payload {
+    GameState state = 1;
+    GameEvent event = 2;
+  }
+}
