@@ -14,6 +14,7 @@ message PlayerInput {
   bool move_left = 3;
   bool move_right = 4;
   bool jump_pressed = 5;
+  float turn_input = 6;
 }
 
 message GameState {
@@ -21,6 +22,7 @@ message GameState {
   Vector3 velocity = 2;
   bool is_in_air = 3;
   bool has_won = 4;
+  float y_orientation_angle = 5;
 }
 
 enum GameEventType {

@@ -482,6 +482,7 @@ class PlayerInput final : public ::google::protobuf::Message
     kMoveLeftFieldNumber = 3,
     kMoveRightFieldNumber = 4,
     kJumpPressedFieldNumber = 5,
+    kTurnInputFieldNumber = 6,
   };
   // bool move_forward = 1;
   void clear_move_forward() ;
@@ -533,12 +534,22 @@ class PlayerInput final : public ::google::protobuf::Message
   void _internal_set_jump_pressed(bool value);
 
   public:
+  // float turn_input = 6;
+  void clear_turn_input() ;
+  float turn_input() const;
+  void set_turn_input(float value);
+
+  private:
+  float _internal_turn_input() const;
+  void _internal_set_turn_input(float value);
+
+  public:
   // @@protoc_insertion_point(class_scope:game_backend.PlayerInput)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
   static const ::google::protobuf::internal::TcParseTable<
-      3, 5, 0,
+      3, 6, 0,
       0, 2>
       _table_;
 
@@ -561,6 +572,7 @@ class PlayerInput final : public ::google::protobuf::Message
     bool move_left_;
     bool move_right_;
     bool jump_pressed_;
+    float turn_input_;
     ::google::protobuf::internal::CachedSize _cached_size_;
     PROTOBUF_TSAN_DECLARE_MEMBER
   };
@@ -909,6 +921,7 @@ class GameState final : public ::google::protobuf::Message
     kVelocityFieldNumber = 2,
     kIsInAirFieldNumber = 3,
     kHasWonFieldNumber = 4,
+    kYOrientationAngleFieldNumber = 5,
   };
   // .game_backend.Vector3 position = 1;
   bool has_position() const;
@@ -960,12 +973,22 @@ class GameState final : public ::google::protobuf::Message
   void _internal_set_has_won(bool value);
 
   public:
+  // float y_orientation_angle = 5;
+  void clear_y_orientation_angle() ;
+  float y_orientation_angle() const;
+  void set_y_orientation_angle(float value);
+
+  private:
+  float _internal_y_orientation_angle() const;
+  void _internal_set_y_orientation_angle(float value);
+
+  public:
   // @@protoc_insertion_point(class_scope:game_backend.GameState)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
   static const ::google::protobuf::internal::TcParseTable<
-      2, 4, 2,
+      3, 5, 2,
       0, 2>
       _table_;
 
@@ -989,6 +1012,7 @@ class GameState final : public ::google::protobuf::Message
     ::game_backend::Vector3* velocity_;
     bool is_in_air_;
     bool has_won_;
+    float y_orientation_angle_;
     PROTOBUF_TSAN_DECLARE_MEMBER
   };
   union { Impl_ _impl_; };
@@ -1663,6 +1687,28 @@ inline void PlayerInput::_internal_set_jump_pressed(bool value) {
   _impl_.jump_pressed_ = value;
 }
 
+// float turn_input = 6;
+inline void PlayerInput::clear_turn_input() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.turn_input_ = 0;
+}
+inline float PlayerInput::turn_input() const {
+  // @@protoc_insertion_point(field_get:game_backend.PlayerInput.turn_input)
+  return _internal_turn_input();
+}
+inline void PlayerInput::set_turn_input(float value) {
+  _internal_set_turn_input(value);
+  // @@protoc_insertion_point(field_set:game_backend.PlayerInput.turn_input)
+}
+inline float PlayerInput::_internal_turn_input() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.turn_input_;
+}
+inline void PlayerInput::_internal_set_turn_input(float value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.turn_input_ = value;
+}
+
 // -------------------------------------------------------------------
 
 // GameState
@@ -1901,6 +1947,28 @@ inline bool GameState::_internal_has_won() const {
 inline void GameState::_internal_set_has_won(bool value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.has_won_ = value;
+}
+
+// float y_orientation_angle = 5;
+inline void GameState::clear_y_orientation_angle() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.y_orientation_angle_ = 0;
+}
+inline float GameState::y_orientation_angle() const {
+  // @@protoc_insertion_point(field_get:game_backend.GameState.y_orientation_angle)
+  return _internal_y_orientation_angle();
+}
+inline void GameState::set_y_orientation_angle(float value) {
+  _internal_set_y_orientation_angle(value);
+  // @@protoc_insertion_point(field_set:game_backend.GameState.y_orientation_angle)
+}
+inline float GameState::_internal_y_orientation_angle() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.y_orientation_angle_;
+}
+inline void GameState::_internal_set_y_orientation_angle(float value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.y_orientation_angle_ = value;
 }
 
 // -------------------------------------------------------------------

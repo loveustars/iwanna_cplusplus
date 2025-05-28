@@ -60,6 +60,7 @@ inline constexpr PlayerInput::Impl_::Impl_(
         move_left_{false},
         move_right_{false},
         jump_pressed_{false},
+        turn_input_{0},
         _cached_size_{0} {}
 
 template <typename>
@@ -113,7 +114,8 @@ inline constexpr GameState::Impl_::Impl_(
         position_{nullptr},
         velocity_{nullptr},
         is_in_air_{false},
-        has_won_{false} {}
+        has_won_{false},
+        y_orientation_angle_{0} {}
 
 template <typename>
 PROTOBUF_CONSTEXPR GameState::GameState(::_pbi::ConstantInitialized)
@@ -217,6 +219,7 @@ const ::uint32_t
         PROTOBUF_FIELD_OFFSET(::game_backend::PlayerInput, _impl_.move_left_),
         PROTOBUF_FIELD_OFFSET(::game_backend::PlayerInput, _impl_.move_right_),
         PROTOBUF_FIELD_OFFSET(::game_backend::PlayerInput, _impl_.jump_pressed_),
+        PROTOBUF_FIELD_OFFSET(::game_backend::PlayerInput, _impl_.turn_input_),
         PROTOBUF_FIELD_OFFSET(::game_backend::GameState, _impl_._has_bits_),
         PROTOBUF_FIELD_OFFSET(::game_backend::GameState, _internal_metadata_),
         ~0u,  // no _extensions_
@@ -229,8 +232,10 @@ const ::uint32_t
         PROTOBUF_FIELD_OFFSET(::game_backend::GameState, _impl_.velocity_),
         PROTOBUF_FIELD_OFFSET(::game_backend::GameState, _impl_.is_in_air_),
         PROTOBUF_FIELD_OFFSET(::game_backend::GameState, _impl_.has_won_),
+        PROTOBUF_FIELD_OFFSET(::game_backend::GameState, _impl_.y_orientation_angle_),
         0,
         1,
+        ~0u,
         ~0u,
         ~0u,
         ~0u,  // no _has_bits_
@@ -270,10 +275,10 @@ static const ::_pbi::MigrationSchema
     schemas[] ABSL_ATTRIBUTE_SECTION_VARIABLE(protodesc_cold) = {
         {0, -1, -1, sizeof(::game_backend::Vector3)},
         {11, -1, -1, sizeof(::game_backend::PlayerInput)},
-        {24, 36, -1, sizeof(::game_backend::GameState)},
-        {40, -1, -1, sizeof(::game_backend::GameEvent)},
-        {49, -1, -1, sizeof(::game_backend::ClientToServer)},
-        {60, -1, -1, sizeof(::game_backend::ServerToClient)},
+        {25, 38, -1, sizeof(::game_backend::GameState)},
+        {43, -1, -1, sizeof(::game_backend::GameEvent)},
+        {52, -1, -1, sizeof(::game_backend::ClientToServer)},
+        {63, -1, -1, sizeof(::game_backend::ServerToClient)},
 };
 static const ::_pb::Message* const file_default_instances[] = {
     &::game_backend::_Vector3_default_instance_._instance,
@@ -286,28 +291,30 @@ static const ::_pb::Message* const file_default_instances[] = {
 const char descriptor_table_protodef_messages_2eproto[] ABSL_ATTRIBUTE_SECTION_VARIABLE(
     protodesc_cold) = {
     "\n\016messages.proto\022\014game_backend\"*\n\007Vector"
-    "3\022\t\n\001x\030\001 \001(\002\022\t\n\001y\030\002 \001(\002\022\t\n\001z\030\003 \001(\002\"w\n\013Pl"
-    "ayerInput\022\024\n\014move_forward\030\001 \001(\010\022\025\n\rmove_"
-    "backward\030\002 \001(\010\022\021\n\tmove_left\030\003 \001(\010\022\022\n\nmov"
-    "e_right\030\004 \001(\010\022\024\n\014jump_pressed\030\005 \001(\010\"\201\001\n\t"
-    "GameState\022\'\n\010position\030\001 \001(\0132\025.game_backe"
-    "nd.Vector3\022\'\n\010velocity\030\002 \001(\0132\025.game_back"
-    "end.Vector3\022\021\n\tis_in_air\030\003 \001(\010\022\017\n\007has_wo"
-    "n\030\004 \001(\010\"6\n\tGameEvent\022)\n\004type\030\001 \001(\0162\033.gam"
-    "e_backend.GameEventType\"q\n\016ClientToServe"
-    "r\022*\n\005input\030\001 \001(\0132\031.game_backend.PlayerIn"
-    "putH\000\022(\n\005event\030\002 \001(\0132\027.game_backend.Game"
-    "EventH\000B\t\n\007payload\"o\n\016ServerToClient\022(\n\005"
-    "state\030\001 \001(\0132\027.game_backend.GameStateH\000\022("
-    "\n\005event\030\002 \001(\0132\027.game_backend.GameEventH\000"
-    "B\t\n\007payload*2\n\rGameEventType\022\021\n\rUNKNOWN_"
-    "EVENT\020\000\022\016\n\nRESET_GAME\020\001b\006proto3"
+    "3\022\t\n\001x\030\001 \001(\002\022\t\n\001y\030\002 \001(\002\022\t\n\001z\030\003 \001(\002\"\213\001\n\013P"
+    "layerInput\022\024\n\014move_forward\030\001 \001(\010\022\025\n\rmove"
+    "_backward\030\002 \001(\010\022\021\n\tmove_left\030\003 \001(\010\022\022\n\nmo"
+    "ve_right\030\004 \001(\010\022\024\n\014jump_pressed\030\005 \001(\010\022\022\n\n"
+    "turn_input\030\006 \001(\002\"\236\001\n\tGameState\022\'\n\010positi"
+    "on\030\001 \001(\0132\025.game_backend.Vector3\022\'\n\010veloc"
+    "ity\030\002 \001(\0132\025.game_backend.Vector3\022\021\n\tis_i"
+    "n_air\030\003 \001(\010\022\017\n\007has_won\030\004 \001(\010\022\033\n\023y_orient"
+    "ation_angle\030\005 \001(\002\"6\n\tGameEvent\022)\n\004type\030\001"
+    " \001(\0162\033.game_backend.GameEventType\"q\n\016Cli"
+    "entToServer\022*\n\005input\030\001 \001(\0132\031.game_backen"
+    "d.PlayerInputH\000\022(\n\005event\030\002 \001(\0132\027.game_ba"
+    "ckend.GameEventH\000B\t\n\007payload\"o\n\016ServerTo"
+    "Client\022(\n\005state\030\001 \001(\0132\027.game_backend.Gam"
+    "eStateH\000\022(\n\005event\030\002 \001(\0132\027.game_backend.G"
+    "ameEventH\000B\t\n\007payload*2\n\rGameEventType\022\021"
+    "\n\rUNKNOWN_EVENT\020\000\022\016\n\nRESET_GAME\020\001b\006proto"
+    "3"
 };
 static ::absl::once_flag descriptor_table_messages_2eproto_once;
 PROTOBUF_CONSTINIT const ::_pbi::DescriptorTable descriptor_table_messages_2eproto = {
     false,
     false,
-    671,
+    721,
     descriptor_table_protodef_messages_2eproto,
     "messages.proto",
     &descriptor_table_messages_2eproto_once,
@@ -620,9 +627,9 @@ inline void PlayerInput::SharedCtor(::_pb::Arena* arena) {
   ::memset(reinterpret_cast<char *>(&_impl_) +
                offsetof(Impl_, move_forward_),
            0,
-           offsetof(Impl_, jump_pressed_) -
+           offsetof(Impl_, turn_input_) -
                offsetof(Impl_, move_forward_) +
-               sizeof(Impl_::jump_pressed_));
+               sizeof(Impl_::turn_input_));
 }
 PlayerInput::~PlayerInput() {
   // @@protoc_insertion_point(destructor:game_backend.PlayerInput)
@@ -671,15 +678,15 @@ const ::google::protobuf::internal::ClassData* PlayerInput::GetClassData() const
   return _class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<3, 5, 0, 0, 2> PlayerInput::_table_ = {
+const ::_pbi::TcParseTable<3, 6, 0, 0, 2> PlayerInput::_table_ = {
   {
     0,  // no _has_bits_
     0, // no _extensions_
-    5, 56,  // max_field_number, fast_idx_mask
+    6, 56,  // max_field_number, fast_idx_mask
     offsetof(decltype(_table_), field_lookup_table),
-    4294967264,  // skipmap
+    4294967232,  // skipmap
     offsetof(decltype(_table_), field_entries),
-    5,  // num_field_entries
+    6,  // num_field_entries
     0,  // num_aux_entries
     offsetof(decltype(_table_), field_names),  // no aux_entries
     _class_data_.base(),
@@ -705,7 +712,9 @@ const ::_pbi::TcParseTable<3, 5, 0, 0, 2> PlayerInput::_table_ = {
     // bool jump_pressed = 5;
     {::_pbi::TcParser::SingularVarintNoZag1<bool, offsetof(PlayerInput, _impl_.jump_pressed_), 63>(),
      {40, 63, 0, PROTOBUF_FIELD_OFFSET(PlayerInput, _impl_.jump_pressed_)}},
-    {::_pbi::TcParser::MiniParse, {}},
+    // float turn_input = 6;
+    {::_pbi::TcParser::FastF32S1,
+     {53, 63, 0, PROTOBUF_FIELD_OFFSET(PlayerInput, _impl_.turn_input_)}},
     {::_pbi::TcParser::MiniParse, {}},
   }}, {{
     65535, 65535
@@ -725,6 +734,9 @@ const ::_pbi::TcParseTable<3, 5, 0, 0, 2> PlayerInput::_table_ = {
     // bool jump_pressed = 5;
     {PROTOBUF_FIELD_OFFSET(PlayerInput, _impl_.jump_pressed_), 0, 0,
     (0 | ::_fl::kFcSingular | ::_fl::kBool)},
+    // float turn_input = 6;
+    {PROTOBUF_FIELD_OFFSET(PlayerInput, _impl_.turn_input_), 0, 0,
+    (0 | ::_fl::kFcSingular | ::_fl::kFloat)},
   }},
   // no aux_entries
   {{
@@ -739,8 +751,8 @@ PROTOBUF_NOINLINE void PlayerInput::Clear() {
   (void) cached_has_bits;
 
   ::memset(&_impl_.move_forward_, 0, static_cast<::size_t>(
-      reinterpret_cast<char*>(&_impl_.jump_pressed_) -
-      reinterpret_cast<char*>(&_impl_.move_forward_)) + sizeof(_impl_.jump_pressed_));
+      reinterpret_cast<char*>(&_impl_.turn_input_) -
+      reinterpret_cast<char*>(&_impl_.move_forward_)) + sizeof(_impl_.turn_input_));
   _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
 }
 
@@ -794,6 +806,13 @@ PROTOBUF_NOINLINE void PlayerInput::Clear() {
                 5, this_._internal_jump_pressed(), target);
           }
 
+          // float turn_input = 6;
+          if (::absl::bit_cast<::uint32_t>(this_._internal_turn_input()) != 0) {
+            target = stream->EnsureSpace(target);
+            target = ::_pbi::WireFormatLite::WriteFloatToArray(
+                6, this_._internal_turn_input(), target);
+          }
+
           if (PROTOBUF_PREDICT_FALSE(this_._internal_metadata_.have_unknown_fields())) {
             target =
                 ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
@@ -839,6 +858,10 @@ PROTOBUF_NOINLINE void PlayerInput::Clear() {
             if (this_._internal_jump_pressed() != 0) {
               total_size += 2;
             }
+            // float turn_input = 6;
+            if (::absl::bit_cast<::uint32_t>(this_._internal_turn_input()) != 0) {
+              total_size += 5;
+            }
           }
           return this_.MaybeComputeUnknownFieldsSize(total_size,
                                                      &this_._impl_._cached_size_);
@@ -867,6 +890,9 @@ void PlayerInput::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::goo
   if (from._internal_jump_pressed() != 0) {
     _this->_impl_.jump_pressed_ = from._impl_.jump_pressed_;
   }
+  if (::absl::bit_cast<::uint32_t>(from._internal_turn_input()) != 0) {
+    _this->_impl_.turn_input_ = from._impl_.turn_input_;
+  }
   _this->_internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(from._internal_metadata_);
 }
 
@@ -882,8 +908,8 @@ void PlayerInput::InternalSwap(PlayerInput* PROTOBUF_RESTRICT other) {
   using std::swap;
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   ::google::protobuf::internal::memswap<
-      PROTOBUF_FIELD_OFFSET(PlayerInput, _impl_.jump_pressed_)
-      + sizeof(PlayerInput::_impl_.jump_pressed_)
+      PROTOBUF_FIELD_OFFSET(PlayerInput, _impl_.turn_input_)
+      + sizeof(PlayerInput::_impl_.turn_input_)
       - PROTOBUF_FIELD_OFFSET(PlayerInput, _impl_.move_forward_)>(
           reinterpret_cast<char*>(&_impl_.move_forward_),
           reinterpret_cast<char*>(&other->_impl_.move_forward_));
@@ -941,9 +967,9 @@ GameState::GameState(
                offsetof(Impl_, is_in_air_),
            reinterpret_cast<const char *>(&from._impl_) +
                offsetof(Impl_, is_in_air_),
-           offsetof(Impl_, has_won_) -
+           offsetof(Impl_, y_orientation_angle_) -
                offsetof(Impl_, is_in_air_) +
-               sizeof(Impl_::has_won_));
+               sizeof(Impl_::y_orientation_angle_));
 
   // @@protoc_insertion_point(copy_constructor:game_backend.GameState)
 }
@@ -957,9 +983,9 @@ inline void GameState::SharedCtor(::_pb::Arena* arena) {
   ::memset(reinterpret_cast<char *>(&_impl_) +
                offsetof(Impl_, position_),
            0,
-           offsetof(Impl_, has_won_) -
+           offsetof(Impl_, y_orientation_angle_) -
                offsetof(Impl_, position_) +
-               sizeof(Impl_::has_won_));
+               sizeof(Impl_::y_orientation_angle_));
 }
 GameState::~GameState() {
   // @@protoc_insertion_point(destructor:game_backend.GameState)
@@ -1010,15 +1036,15 @@ const ::google::protobuf::internal::ClassData* GameState::GetClassData() const {
   return _class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<2, 4, 2, 0, 2> GameState::_table_ = {
+const ::_pbi::TcParseTable<3, 5, 2, 0, 2> GameState::_table_ = {
   {
     PROTOBUF_FIELD_OFFSET(GameState, _impl_._has_bits_),
     0, // no _extensions_
-    4, 24,  // max_field_number, fast_idx_mask
+    5, 56,  // max_field_number, fast_idx_mask
     offsetof(decltype(_table_), field_lookup_table),
-    4294967280,  // skipmap
+    4294967264,  // skipmap
     offsetof(decltype(_table_), field_entries),
-    4,  // num_field_entries
+    5,  // num_field_entries
     2,  // num_aux_entries
     offsetof(decltype(_table_), aux_entries),
     _class_data_.base(),
@@ -1028,9 +1054,7 @@ const ::_pbi::TcParseTable<2, 4, 2, 0, 2> GameState::_table_ = {
     ::_pbi::TcParser::GetTable<::game_backend::GameState>(),  // to_prefetch
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
-    // bool has_won = 4;
-    {::_pbi::TcParser::SingularVarintNoZag1<bool, offsetof(GameState, _impl_.has_won_), 63>(),
-     {32, 63, 0, PROTOBUF_FIELD_OFFSET(GameState, _impl_.has_won_)}},
+    {::_pbi::TcParser::MiniParse, {}},
     // .game_backend.Vector3 position = 1;
     {::_pbi::TcParser::FastMtS1,
      {10, 0, 0, PROTOBUF_FIELD_OFFSET(GameState, _impl_.position_)}},
@@ -1040,6 +1064,14 @@ const ::_pbi::TcParseTable<2, 4, 2, 0, 2> GameState::_table_ = {
     // bool is_in_air = 3;
     {::_pbi::TcParser::SingularVarintNoZag1<bool, offsetof(GameState, _impl_.is_in_air_), 63>(),
      {24, 63, 0, PROTOBUF_FIELD_OFFSET(GameState, _impl_.is_in_air_)}},
+    // bool has_won = 4;
+    {::_pbi::TcParser::SingularVarintNoZag1<bool, offsetof(GameState, _impl_.has_won_), 63>(),
+     {32, 63, 0, PROTOBUF_FIELD_OFFSET(GameState, _impl_.has_won_)}},
+    // float y_orientation_angle = 5;
+    {::_pbi::TcParser::FastF32S1,
+     {45, 63, 0, PROTOBUF_FIELD_OFFSET(GameState, _impl_.y_orientation_angle_)}},
+    {::_pbi::TcParser::MiniParse, {}},
+    {::_pbi::TcParser::MiniParse, {}},
   }}, {{
     65535, 65535
   }}, {{
@@ -1055,6 +1087,9 @@ const ::_pbi::TcParseTable<2, 4, 2, 0, 2> GameState::_table_ = {
     // bool has_won = 4;
     {PROTOBUF_FIELD_OFFSET(GameState, _impl_.has_won_), -1, 0,
     (0 | ::_fl::kFcSingular | ::_fl::kBool)},
+    // float y_orientation_angle = 5;
+    {PROTOBUF_FIELD_OFFSET(GameState, _impl_.y_orientation_angle_), -1, 0,
+    (0 | ::_fl::kFcSingular | ::_fl::kFloat)},
   }}, {{
     {::_pbi::TcParser::GetTable<::game_backend::Vector3>()},
     {::_pbi::TcParser::GetTable<::game_backend::Vector3>()},
@@ -1081,8 +1116,8 @@ PROTOBUF_NOINLINE void GameState::Clear() {
     }
   }
   ::memset(&_impl_.is_in_air_, 0, static_cast<::size_t>(
-      reinterpret_cast<char*>(&_impl_.has_won_) -
-      reinterpret_cast<char*>(&_impl_.is_in_air_)) + sizeof(_impl_.has_won_));
+      reinterpret_cast<char*>(&_impl_.y_orientation_angle_) -
+      reinterpret_cast<char*>(&_impl_.is_in_air_)) + sizeof(_impl_.y_orientation_angle_));
   _impl_._has_bits_.Clear();
   _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
 }
@@ -1131,6 +1166,13 @@ PROTOBUF_NOINLINE void GameState::Clear() {
                 4, this_._internal_has_won(), target);
           }
 
+          // float y_orientation_angle = 5;
+          if (::absl::bit_cast<::uint32_t>(this_._internal_y_orientation_angle()) != 0) {
+            target = stream->EnsureSpace(target);
+            target = ::_pbi::WireFormatLite::WriteFloatToArray(
+                5, this_._internal_y_orientation_angle(), target);
+          }
+
           if (PROTOBUF_PREDICT_FALSE(this_._internal_metadata_.have_unknown_fields())) {
             target =
                 ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
@@ -1177,6 +1219,10 @@ PROTOBUF_NOINLINE void GameState::Clear() {
             if (this_._internal_has_won() != 0) {
               total_size += 2;
             }
+            // float y_orientation_angle = 5;
+            if (::absl::bit_cast<::uint32_t>(this_._internal_y_orientation_angle()) != 0) {
+              total_size += 5;
+            }
           }
           return this_.MaybeComputeUnknownFieldsSize(total_size,
                                                      &this_._impl_._cached_size_);
@@ -1218,6 +1264,9 @@ void GameState::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::googl
   if (from._internal_has_won() != 0) {
     _this->_impl_.has_won_ = from._impl_.has_won_;
   }
+  if (::absl::bit_cast<::uint32_t>(from._internal_y_orientation_angle()) != 0) {
+    _this->_impl_.y_orientation_angle_ = from._impl_.y_orientation_angle_;
+  }
   _this->_impl_._has_bits_[0] |= cached_has_bits;
   _this->_internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(from._internal_metadata_);
 }
@@ -1235,8 +1284,8 @@ void GameState::InternalSwap(GameState* PROTOBUF_RESTRICT other) {
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   swap(_impl_._has_bits_[0], other->_impl_._has_bits_[0]);
   ::google::protobuf::internal::memswap<
-      PROTOBUF_FIELD_OFFSET(GameState, _impl_.has_won_)
-      + sizeof(GameState::_impl_.has_won_)
+      PROTOBUF_FIELD_OFFSET(GameState, _impl_.y_orientation_angle_)
+      + sizeof(GameState::_impl_.y_orientation_angle_)
       - PROTOBUF_FIELD_OFFSET(GameState, _impl_.position_)>(
           reinterpret_cast<char*>(&_impl_.position_),
           reinterpret_cast<char*>(&other->_impl_.position_));

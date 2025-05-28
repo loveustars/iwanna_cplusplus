@@ -8,6 +8,7 @@
 #include <vector>
 #include <algorithm>
 #include <optional>
+#include <cmath>
 #include <fstream>  // 用于文件读取
 #include <sstream>  // 用于字符串解析
 

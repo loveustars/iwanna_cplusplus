@@ -2,9 +2,7 @@
 
 #include "GameHandler.h"
 #include "AsioNetworkManager.h"
-// AsioNetworkManager.h 包含在 GameHandler.h 中，这里不需要重复包含，
-// 但如果 GameHandler.cpp 中直接使用了 AsioNetworkManager 的具体成员，则可能需要
-// #include "AsioNetworkManager.h" // 确保 AsioNetworkManager 的完整定义可见
+// 确保 AsioNetworkManager 的完整定义可见
 
 // GameHandler 构造函数
 GameHandler::GameHandler() {
@@ -41,6 +39,8 @@ void GameHandler::Initialize() {
 // 文件格式:
 // 第一行: victory_point x y z
 // 之后每行: obstacle_aabb min_x min_y min_z max_x max_y max_z
+
+/*
 MapData GameHandler::LoadMapFromFile(const std::string& filename) {
     MapData mapData;
     mapData.loadedSuccessfully = false; // 默认加载失败
@@ -91,7 +91,75 @@ MapData GameHandler::LoadMapFromFile(const std::string& filename) {
     mapFile.close();
     mapData.loadedSuccessfully = true; // 标记加载成功
     return mapData;
+}*/
+
+MapData GameHandler::LoadMapFromFile(const std::string& filename) {
+    MapData mapData;
+    mapData.loadedSuccessfully = false; // 默认加载失败
+    std::ifstream mapFile(filename);
+    std::string line;
+    if (!mapFile.is_open()) {
+        std::cerr << "[Game] Error: Could not open map file: " << filename << std::endl;
+        return mapData;
+    }
+
+    // 读取胜利点
+    if (std::getline(mapFile, line)) {
+        std::istringstream iss(line);
+        std::string type;
+        iss >> type;
+        if (type == "victory_point") {
+            iss >> mapData.victoryPoint.x >> mapData.victoryPoint.y >> mapData.victoryPoint.z;
+        }
+        else {
+            std::cerr << "[Game] Error: Invalid map file format. Expected 'victory_point' on the first line." << std::endl;
+            mapFile.close();
+            return mapData;
+        }
+    }
+    else {
+        std::cerr << "[Game] Error: Map file is empty or could not read victory point." << std::endl;
+        mapFile.close();
+        return mapData;
+    }
+
+    // 读取障碍物
+    while (std::getline(mapFile, line)) {
+        // 修改:将检查注释和空行的逻辑放在最前面
+        // 1. 去除行首的空白字符，使判断更稳健
+        size_t first_char_pos = line.find_first_not_of(" \t");
+
+        // 2. 如果这一行是空的，或者第一个非空白字符是'#'，则跳过这一行
+        if (line.empty() || first_char_pos == std::string::npos || line[first_char_pos] == '#') {
+            continue;
+        }
+
+        // 3. 只有在确认不是注释或空行后，才进行解析
+        std::istringstream iss(line);
+        std::string type;
+        iss >> type;
+
+        if (type == "obstacle_aabb") {
+            AABB obstacle;
+            // 增加了解析数字是否成功的检查
+            if (!(iss >> obstacle.min.x >> obstacle.min.y >> obstacle.min.z
+                >> obstacle.max.x >> obstacle.max.y >> obstacle.max.z)) {
+                std::cerr << "[Game] Warning: Malformed 'obstacle_aabb' line (could not parse numbers): " << line << std::endl;
+                continue;
+            }
+            mapData.obstacles.push_back(obstacle);
+        }
+        else {
+            // 4. 如果行首的单词不是我们认识的任何类型，则报告为无效行
+            std::cerr << "[Game] Warning: Skipping unrecognized line type in map file: " << line << std::endl;
+        }
+    }
+
+    mapFile.close();
+    mapData.loadedSuccessfully = true; // 标记加载成功
+    return mapData;
 }
+
 
 
 void GameHandler::ProcessInput(const PlayerInputState& input) {
@@ -106,15 +174,67 @@ void GameHandler::Update(float deltaTime) {
         return;
     }
 
-    // 1. 根据输入计算目标水平速度
-    Struct3D targetVelocity = { 0.0f, nowPlayerState_.velocity.y, 0.0f };
-    if (currentInput_.moveForward)  targetVelocity.z += GameConstants::MOVE_SPEED;
-    if (currentInput_.moveBackward) targetVelocity.z -= GameConstants::MOVE_SPEED;
-    if (currentInput_.moveLeft)   targetVelocity.x -= GameConstants::MOVE_SPEED;
-    if (currentInput_.moveRight)  targetVelocity.x += GameConstants::MOVE_SPEED;
+    /*
+    nowPlayerState_.velocity.x = 0.0f;
+    nowPlayerState_.velocity.z = 0.0f;
 
-    nowPlayerState_.velocity.x = targetVelocity.x;
-    nowPlayerState_.velocity.z = targetVelocity.z;
+    // 1. 根据输入计算目标水平速度
+    if (currentInput_.moveForward)  nowPlayerState_.velocity.z += GameConstants::MOVE_SPEED;
+    if (currentInput_.moveBackward) nowPlayerState_.velocity.z -= GameConstants::MOVE_SPEED;
+    if (currentInput_.moveLeft)   nowPlayerState_.velocity.x -= GameConstants::MOVE_SPEED;
+    if (currentInput_.moveRight)  nowPlayerState_.velocity.x += GameConstants::MOVE_SPEED;
+   */
+
+   // --- 0. 更新玩家Y轴旋转 (根据 turnInput) ---
+    if (currentInput_.turnInput != 0.0f) {
+        float rotationAmount = currentInput_.turnInput * GameConstants::SERVER_ROTATION_SPEED * deltaTime;
+        nowPlayerState_.yOrientationAngle += rotationAmount;
+
+        // 可选：将角度标准化到 0-360 度范围，避免数值无限增大
+        // nowPlayerState_.yOrientationAngle = fmod(fmod(nowPlayerState_.yOrientationAngle, 360.0f) + 360.0f, 360.0f);
+        // 或者标准化到 -180 到 180
+        while (nowPlayerState_.yOrientationAngle > 180.0f) nowPlayerState_.yOrientationAngle -= 360.0f;
+        while (nowPlayerState_.yOrientationAngle < -180.0f) nowPlayerState_.yOrientationAngle += 360.0f;
+    }
+    // -----------------------------------------
+
+    // 1. 根据输入计算目标世界坐标系下的速度 (W/S 控制Z轴, A/D 控制X轴 - 这是世界坐标系平移)
+    // 如果你希望W/S是“向前/向后”（相对于角色朝向），A/D是“向左/向右旋转”，那么速度计算会不同。
+    // 当前代码：W/S控制世界Z，A/D(moveLeft/Right)控制世界X。TurnInput只控制旋转。
+    nowPlayerState_.velocity.x = 0.0f;
+    nowPlayerState_.velocity.y = nowPlayerState_.velocity.y; // 保留垂直速度 (重力和跳跃)***
+    nowPlayerState_.velocity.z = 0.0f;
+
+    // --- 如果W/S是相对于角色朝向的移动 ---
+    // 这部分需要根据你的 PlayerInputState 中 moveLeft/Right 的含义来决定
+    // 假设:
+    // - currentInput_.moveForward/Backward 用于前后移动
+    // - currentInput_.moveLeft/Right 用于左右平移 (strafe)
+    // - currentInput_.turnInput 用于原地旋转 (我们已经在上面处理了旋转本身)
+
+    Struct3D moveDirection = { 0,0,0 };
+    if (currentInput_.moveForward)  moveDirection.z += 1.0f;
+    if (currentInput_.moveBackward) moveDirection.z -= 1.0f;
+    if (currentInput_.moveRight)    moveDirection.x += 1.0f;
+    if (currentInput_.moveLeft)     moveDirection.x -= 1.0f;
+
+    if (moveDirection.x != 0.0f || moveDirection.z != 0.0f) {
+        // 将本地移动方向 (基于输入) 旋转到世界坐标系
+        float angleRad = nowPlayerState_.yOrientationAngle * (3.1415926535f / 180.0f); // 转为弧度
+        float cosAngle = std::cos(angleRad);
+        float sinAngle = - std::sin(angleRad);
+
+        float worldMoveX = (moveDirection.x * cosAngle) - (moveDirection.z * sinAngle);
+        float worldMoveZ = (moveDirection.x * sinAngle) + (moveDirection.z * cosAngle);
+
+        nowPlayerState_.velocity.x = worldMoveX * GameConstants::MOVE_SPEED;
+        nowPlayerState_.velocity.z = worldMoveZ * GameConstants::MOVE_SPEED;
+
+        /*
+        nowPlayerState_.velocity.x = (moveDirection.x * cosAngle - moveDirection.z * sinAngle) * GameConstants::MOVE_SPEED;
+        nowPlayerState_.velocity.z = (moveDirection.x * sinAngle + moveDirection.z * cosAngle) * GameConstants::MOVE_SPEED;*/
+    }
+
 
     // 2. 处理跳跃
     if (currentInput_.jumpPressed && !nowPlayerState_.isInAir) {
@@ -129,7 +249,7 @@ void GameHandler::Update(float deltaTime) {
         nowPlayerState_.velocity.y = std::max(nowPlayerState_.velocity.y, GameConstants::MAX_FALL_VELOCITY);
     }
     else {
-        nowPlayerState_.velocity.y = 0;
+        nowPlayerState_.velocity.y = -0.01f; // 这里是为了让后续碰撞检测不必那么精确
     }
 
     // 4. 计算无碰撞时的下一位置
@@ -144,7 +264,7 @@ void GameHandler::Update(float deltaTime) {
     // 1）检测与场景中静态障碍物的碰撞 (使用从地图文件加载的障碍物)
     for (const auto& obstacle : currentMap_.obstacles) {
         if (CheckAABBCollision(playerNextAABB, obstacle)) {
-            // std::cout << "[Game] Collision detected with obstacle." << std::endl; // 按需保留
+            // std::cout << "[Game] Collision detected with obstacle." << std::endl; // 保留
             collisionOccurredThisFrame = true;
 
             // 简化的碰撞响应：将玩家推回，并停止在该方向上的速度
@@ -167,7 +287,7 @@ void GameHandler::Update(float deltaTime) {
             // 优先处理Y轴碰撞 (着陆或撞头)
             if (overlapY > 0 && (overlapX == 0 || overlapY <= overlapX) && (overlapZ == 0 || overlapY <= overlapZ)) {
                 if (nowPlayerState_.velocity.y <= 0 && playerNextAABB.min.y < obstacle.max.y && nowPlayerState_.pos.y >= obstacle.max.y - GameConstants::PLAYER_HEIGHT * 0.5f) { // 向下运动时撞到顶部
-                    potentialNextPos.y = obstacle.max.y; // 精确放到障碍物顶部
+                    potentialNextPos.y = obstacle.max.y + GameConstants::PLAYER_HEIGHT * 0.5f; // 精确放到障碍物顶部再加半高，因为Unity对于scale的定义
                     nowPlayerState_.velocity.y = 0;
                     nowPlayerState_.isInAir = false;
                     // std::cout << "[Game] Landed on obstacle." << std::endl;
@@ -213,12 +333,13 @@ void GameHandler::Update(float deltaTime) {
 
     // 2）检测与地面的碰撞
     bool landedOnGroundThisFrame = false;
+    float playerBottomY = potentialNextPos.y - GameConstants::PLAYER_HEIGHT * 0.5f;
     if (potentialNextPos.y <= GameConstants::GROUND_LEVEL_Y && nowPlayerState_.velocity.y <= 0) {
         if (!nowPlayerState_.isInAir) { // 如果已经在地面
-            potentialNextPos.y = GameConstants::GROUND_LEVEL_Y;
+            potentialNextPos.y = GameConstants::GROUND_LEVEL_Y + GameConstants::PLAYER_HEIGHT * 0.5f;
         }
         else { // 如果刚接触地面
-            potentialNextPos.y = GameConstants::GROUND_LEVEL_Y;
+            potentialNextPos.y = GameConstants::GROUND_LEVEL_Y + GameConstants::PLAYER_HEIGHT * 0.5f;
             nowPlayerState_.velocity.y = 0;
             nowPlayerState_.isInAir = false;
             landedOnGroundThisFrame = true;
@@ -278,6 +399,9 @@ std::optional<std::string> GameHandler::GetStateDataForNetwork() const {
     vel_proto->set_x(nowPlayerState_.velocity.x);
     vel_proto->set_y(nowPlayerState_.velocity.y);
     vel_proto->set_z(nowPlayerState_.velocity.z);
+
+    // 填充旋转
+    state_payload->set_y_orientation_angle(nowPlayerState_.yOrientationAngle);
 
     // 填充其他状态
     state_payload->set_is_in_air(nowPlayerState_.isInAir);

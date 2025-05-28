@@ -1,3 +1,8 @@
+
+
+
+
+
 #include "AsioNetworkManager.h"
 #include "GameHandler.h"
 #include "messages.pb.h"
@@ -19,7 +24,7 @@ AsioNetworkManager::AsioNetworkManager(asio::io_context& io_context, short port,
 
     // 设置SO_REUSEADDR选项，允许快速重启服务器时重用地址
     // 这对于开发和测试阶段非常有用，可以避免"Address already in use"错误
-    // 注意：在生产环境中，是否需要此选项取决于具体需求
+
     socket_.set_option(asio::socket_base::reuse_address(true), ec);
     if (ec) {
         // 如果设置选项失败，可以选择记录警告，但不一定是致命错误
@@ -105,6 +110,7 @@ void AsioNetworkManager::ProcessReceivedData(const std::string& data, const asio
         input_state.moveLeft = input_payload.move_left();
         input_state.moveRight = input_payload.move_right();
         input_state.jumpPressed = input_payload.jump_pressed();
+        input_state.turnInput = input_payload.turn_input();
 
         // 将结构化的输入数据传递给 GameHandler 进行处理
         game_handler_.ProcessInput(input_state);
@@ -146,7 +152,7 @@ std::optional<asio::ip::udp::endpoint> AsioNetworkManager::GetLastClientEndpoint
 
 void AsioNetworkManager::HandleReceive(const asio::error_code& error, std::size_t transdBytes) {
     if (!error || error == asio::error::message_size) {
-        if (transdBytes > 0 && transdBytes <= receive_buffer_.size()) { // 增加边界检查
+        if (transdBytes > 0 && transdBytes <= receive_buffer_.size()) { // 增加边界检查，防止越界
             // 确保 transdBytes 不超过 receive_buffer_ 的实际大小
             std::string received_message(receive_buffer_.data(), transdBytes);
             std::cout << "[Network] HandleReceive: transdBytes = " << transdBytes << std::endl; // 调试打印
@@ -165,8 +171,7 @@ void AsioNetworkManager::HandleReceive(const asio::error_code& error, std::size_
         // 对于非致命错误，尝试继续接收
         // 如果是像 connection_reset 这样的错误，对于UDP来说通常可以忽略并继续
         if (error != asio::error::connection_reset) {
-            // 对于其他类型的错误，可能需要更复杂的处理逻辑
-            // 但为了简单起见，我们仍然尝试继续接收
+            // 对于其他类型的错误，可能需要更复杂的处理逻辑，这里先继续接收
         }
         StartReceive();
     }
