@@ -1,8 +1,4 @@
 
-
-
-
-
 #include "AsioNetworkManager.h"
 #include "GameHandler.h"
 #include "messages.pb.h"
@@ -21,9 +17,6 @@ AsioNetworkManager::AsioNetworkManager(asio::io_context& io_context, short port,
     if (ec) {
         throw std::runtime_error("Failed to open UDP socket: " + ec.message());
     }
-
-    // 设置SO_REUSEADDR选项，允许快速重启服务器时重用地址
-    // 这对于开发和测试阶段非常有用，可以避免"Address already in use"错误
 
     socket_.set_option(asio::socket_base::reuse_address(true), ec);
     if (ec) {
@@ -57,10 +50,10 @@ void AsioNetworkManager::ProcessReceivedData(const std::string& data, const asio
     std::cout << "[Network] ProcessReceivedData_Phase2: Data length: " << data.length() << std::endl;
     std::cout << "[Network] ProcessReceivedData_Phase3: Received from (sender_endpoint): " << sender_endpoint << std::endl; // 确认这个打印没问题
 
-    // 尝试分解赋值操作
+    // 分解赋值操作
     std::cout << "[Network] ProcessReceivedData_Phase4: About to attempt copying sender_endpoint manually." << std::endl;
     try {
-        // 手动创建一个 endpoint 的拷贝，看这里是否崩溃
+        // 手动创建一个endpoint的拷贝，看这里是否崩溃
         asio::ip::udp::endpoint temp_copy = sender_endpoint;
         std::cout << "[Network] ProcessReceivedData_Phase5: Manual copy of sender_endpoint SUCCESSFUL. Copied EP: " << temp_copy << std::endl;
 
@@ -72,7 +65,7 @@ void AsioNetworkManager::ProcessReceivedData(const std::string& data, const asio
     }
     catch (const std::exception& e) {
         std::cerr << "[Network] ProcessReceivedData_CRITICAL: Exception during endpoint copy/assignment: " << e.what() << std::endl;
-        // 在这里可以设置一个断点或直接返回，因为很可能已经出错了
+        // 在这里可以设置一个断点或直接返回，因为可能已经出错了
         return;
     }
     catch (...) {
@@ -82,7 +75,7 @@ void AsioNetworkManager::ProcessReceivedData(const std::string& data, const asio
     std::cout << "[Network] ProcessReceivedData_Phase8: Continuing after endpoint assignment..." << std::endl;
     */
 
-    game_backend::ClientToServer client_msg; // 创建 Protobuf 消息对象
+    game_backend::ClientToServer client_msg; // 创建Protobuf消息对象
     std::cout << "[Network] Received " << data.length() << " bytes from " << sender_endpoint << std::endl;
 
     // 尝试从接收到的二进制数据string填充消息对象

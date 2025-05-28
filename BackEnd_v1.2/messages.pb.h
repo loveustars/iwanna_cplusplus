@@ -56,6 +56,9 @@ namespace game_backend {
 class ClientToServer;
 struct ClientToServerDefaultTypeInternal;
 extern ClientToServerDefaultTypeInternal _ClientToServer_default_instance_;
+class DynamicPlatformState;
+struct DynamicPlatformStateDefaultTypeInternal;
+extern DynamicPlatformStateDefaultTypeInternal _DynamicPlatformState_default_instance_;
 class GameEvent;
 struct GameEventDefaultTypeInternal;
 extern GameEventDefaultTypeInternal _GameEvent_default_instance_;
@@ -390,7 +393,7 @@ class PlayerInput final : public ::google::protobuf::Message
     return reinterpret_cast<const PlayerInput*>(
         &_PlayerInput_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 1;
+  static constexpr int kIndexInFileMessages = 2;
   friend void swap(PlayerInput& a, PlayerInput& b) { a.Swap(&b); }
   inline void Swap(PlayerInput* other) {
     if (other == this) return;
@@ -640,7 +643,7 @@ class GameEvent final : public ::google::protobuf::Message
     return reinterpret_cast<const GameEvent*>(
         &_GameEvent_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 3;
+  static constexpr int kIndexInFileMessages = 4;
   friend void swap(GameEvent& a, GameEvent& b) { a.Swap(&b); }
   inline void Swap(GameEvent* other) {
     if (other == this) return;
@@ -771,31 +774,31 @@ class GameEvent final : public ::google::protobuf::Message
 };
 // -------------------------------------------------------------------
 
-class GameState final : public ::google::protobuf::Message
-/* @@protoc_insertion_point(class_definition:game_backend.GameState) */ {
+class DynamicPlatformState final : public ::google::protobuf::Message
+/* @@protoc_insertion_point(class_definition:game_backend.DynamicPlatformState) */ {
  public:
-  inline GameState() : GameState(nullptr) {}
-  ~GameState() PROTOBUF_FINAL;
+  inline DynamicPlatformState() : DynamicPlatformState(nullptr) {}
+  ~DynamicPlatformState() PROTOBUF_FINAL;
 
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-  void operator delete(GameState* msg, std::destroying_delete_t) {
+  void operator delete(DynamicPlatformState* msg, std::destroying_delete_t) {
     SharedDtor(*msg);
-    ::google::protobuf::internal::SizedDelete(msg, sizeof(GameState));
+    ::google::protobuf::internal::SizedDelete(msg, sizeof(DynamicPlatformState));
   }
 #endif
 
   template <typename = void>
-  explicit PROTOBUF_CONSTEXPR GameState(
+  explicit PROTOBUF_CONSTEXPR DynamicPlatformState(
       ::google::protobuf::internal::ConstantInitialized);
 
-  inline GameState(const GameState& from) : GameState(nullptr, from) {}
-  inline GameState(GameState&& from) noexcept
-      : GameState(nullptr, std::move(from)) {}
-  inline GameState& operator=(const GameState& from) {
+  inline DynamicPlatformState(const DynamicPlatformState& from) : DynamicPlatformState(nullptr, from) {}
+  inline DynamicPlatformState(DynamicPlatformState&& from) noexcept
+      : DynamicPlatformState(nullptr, std::move(from)) {}
+  inline DynamicPlatformState& operator=(const DynamicPlatformState& from) {
     CopyFrom(from);
     return *this;
   }
-  inline GameState& operator=(GameState&& from) noexcept {
+  inline DynamicPlatformState& operator=(DynamicPlatformState&& from) noexcept {
     if (this == &from) return *this;
     if (::google::protobuf::internal::CanMoveWithInternalSwap(GetArena(), from.GetArena())) {
       InternalSwap(&from);
@@ -823,16 +826,16 @@ class GameState final : public ::google::protobuf::Message
   static const ::google::protobuf::Reflection* GetReflection() {
     return default_instance().GetMetadata().reflection;
   }
-  static const GameState& default_instance() {
+  static const DynamicPlatformState& default_instance() {
     return *internal_default_instance();
   }
-  static inline const GameState* internal_default_instance() {
-    return reinterpret_cast<const GameState*>(
-        &_GameState_default_instance_);
+  static inline const DynamicPlatformState* internal_default_instance() {
+    return reinterpret_cast<const DynamicPlatformState*>(
+        &_DynamicPlatformState_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 2;
-  friend void swap(GameState& a, GameState& b) { a.Swap(&b); }
-  inline void Swap(GameState* other) {
+  static constexpr int kIndexInFileMessages = 1;
+  friend void swap(DynamicPlatformState& a, DynamicPlatformState& b) { a.Swap(&b); }
+  inline void Swap(DynamicPlatformState* other) {
     if (other == this) return;
     if (::google::protobuf::internal::CanUseInternalSwap(GetArena(), other->GetArena())) {
       InternalSwap(other);
@@ -840,7 +843,7 @@ class GameState final : public ::google::protobuf::Message
       ::google::protobuf::internal::GenericSwap(this, other);
     }
   }
-  void UnsafeArenaSwap(GameState* other) {
+  void UnsafeArenaSwap(DynamicPlatformState* other) {
     if (other == this) return;
     ABSL_DCHECK(GetArena() == other->GetArena());
     InternalSwap(other);
@@ -848,13 +851,13 @@ class GameState final : public ::google::protobuf::Message
 
   // implements Message ----------------------------------------------
 
-  GameState* New(::google::protobuf::Arena* arena = nullptr) const {
-    return ::google::protobuf::Message::DefaultConstruct<GameState>(arena);
+  DynamicPlatformState* New(::google::protobuf::Arena* arena = nullptr) const {
+    return ::google::protobuf::Message::DefaultConstruct<DynamicPlatformState>(arena);
   }
   using ::google::protobuf::Message::CopyFrom;
-  void CopyFrom(const GameState& from);
+  void CopyFrom(const DynamicPlatformState& from);
   using ::google::protobuf::Message::MergeFrom;
-  void MergeFrom(const GameState& from) { GameState::MergeImpl(*this, from); }
+  void MergeFrom(const DynamicPlatformState& from) { DynamicPlatformState::MergeImpl(*this, from); }
 
   private:
   static void MergeImpl(
@@ -891,18 +894,18 @@ class GameState final : public ::google::protobuf::Message
   private:
   void SharedCtor(::google::protobuf::Arena* arena);
   static void SharedDtor(MessageLite& self);
-  void InternalSwap(GameState* other);
+  void InternalSwap(DynamicPlatformState* other);
  private:
   template <typename T>
   friend ::absl::string_view(
       ::google::protobuf::internal::GetAnyMessageName)();
-  static ::absl::string_view FullMessageName() { return "game_backend.GameState"; }
+  static ::absl::string_view FullMessageName() { return "game_backend.DynamicPlatformState"; }
 
  protected:
-  explicit GameState(::google::protobuf::Arena* arena);
-  GameState(::google::protobuf::Arena* arena, const GameState& from);
-  GameState(::google::protobuf::Arena* arena, GameState&& from) noexcept
-      : GameState(arena) {
+  explicit DynamicPlatformState(::google::protobuf::Arena* arena);
+  DynamicPlatformState(::google::protobuf::Arena* arena, const DynamicPlatformState& from);
+  DynamicPlatformState(::google::protobuf::Arena* arena, DynamicPlatformState&& from) noexcept
+      : DynamicPlatformState(arena) {
     *this = ::std::move(from);
   }
   const ::google::protobuf::internal::ClassData* GetClassData() const PROTOBUF_FINAL;
@@ -917,13 +920,10 @@ class GameState final : public ::google::protobuf::Message
 
   // accessors -------------------------------------------------------
   enum : int {
-    kPositionFieldNumber = 1,
-    kVelocityFieldNumber = 2,
-    kIsInAirFieldNumber = 3,
-    kHasWonFieldNumber = 4,
-    kYOrientationAngleFieldNumber = 5,
+    kPositionFieldNumber = 2,
+    kIdFieldNumber = 1,
   };
-  // .game_backend.Vector3 position = 1;
+  // .game_backend.Vector3 position = 2;
   bool has_position() const;
   void clear_position() ;
   const ::game_backend::Vector3& position() const;
@@ -938,57 +938,22 @@ class GameState final : public ::google::protobuf::Message
   ::game_backend::Vector3* _internal_mutable_position();
 
   public:
-  // .game_backend.Vector3 velocity = 2;
-  bool has_velocity() const;
-  void clear_velocity() ;
-  const ::game_backend::Vector3& velocity() const;
-  PROTOBUF_NODISCARD ::game_backend::Vector3* release_velocity();
-  ::game_backend::Vector3* mutable_velocity();
-  void set_allocated_velocity(::game_backend::Vector3* value);
-  void unsafe_arena_set_allocated_velocity(::game_backend::Vector3* value);
-  ::game_backend::Vector3* unsafe_arena_release_velocity();
+  // int32 id = 1;
+  void clear_id() ;
+  ::int32_t id() const;
+  void set_id(::int32_t value);
 
   private:
-  const ::game_backend::Vector3& _internal_velocity() const;
-  ::game_backend::Vector3* _internal_mutable_velocity();
+  ::int32_t _internal_id() const;
+  void _internal_set_id(::int32_t value);
 
   public:
-  // bool is_in_air = 3;
-  void clear_is_in_air() ;
-  bool is_in_air() const;
-  void set_is_in_air(bool value);
-
-  private:
-  bool _internal_is_in_air() const;
-  void _internal_set_is_in_air(bool value);
-
-  public:
-  // bool has_won = 4;
-  void clear_has_won() ;
-  bool has_won() const;
-  void set_has_won(bool value);
-
-  private:
-  bool _internal_has_won() const;
-  void _internal_set_has_won(bool value);
-
-  public:
-  // float y_orientation_angle = 5;
-  void clear_y_orientation_angle() ;
-  float y_orientation_angle() const;
-  void set_y_orientation_angle(float value);
-
-  private:
-  float _internal_y_orientation_angle() const;
-  void _internal_set_y_orientation_angle(float value);
-
-  public:
-  // @@protoc_insertion_point(class_scope:game_backend.GameState)
+  // @@protoc_insertion_point(class_scope:game_backend.DynamicPlatformState)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
   static const ::google::protobuf::internal::TcParseTable<
-      3, 5, 2,
+      1, 2, 1,
       0, 2>
       _table_;
 
@@ -1005,14 +970,11 @@ class GameState final : public ::google::protobuf::Message
                           ::google::protobuf::Arena* arena);
     inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
                           ::google::protobuf::Arena* arena, const Impl_& from,
-                          const GameState& from_msg);
+                          const DynamicPlatformState& from_msg);
     ::google::protobuf::internal::HasBits<1> _has_bits_;
     ::google::protobuf::internal::CachedSize _cached_size_;
     ::game_backend::Vector3* position_;
-    ::game_backend::Vector3* velocity_;
-    bool is_in_air_;
-    bool has_won_;
-    float y_orientation_angle_;
+    ::int32_t id_;
     PROTOBUF_TSAN_DECLARE_MEMBER
   };
   union { Impl_ _impl_; };
@@ -1084,7 +1046,7 @@ class ClientToServer final : public ::google::protobuf::Message
     return reinterpret_cast<const ClientToServer*>(
         &_ClientToServer_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 4;
+  static constexpr int kIndexInFileMessages = 5;
   friend void swap(ClientToServer& a, ClientToServer& b) { a.Swap(&b); }
   inline void Swap(ClientToServer* other) {
     if (other == this) return;
@@ -1256,6 +1218,274 @@ class ClientToServer final : public ::google::protobuf::Message
 };
 // -------------------------------------------------------------------
 
+class GameState final : public ::google::protobuf::Message
+/* @@protoc_insertion_point(class_definition:game_backend.GameState) */ {
+ public:
+  inline GameState() : GameState(nullptr) {}
+  ~GameState() PROTOBUF_FINAL;
+
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+  void operator delete(GameState* msg, std::destroying_delete_t) {
+    SharedDtor(*msg);
+    ::google::protobuf::internal::SizedDelete(msg, sizeof(GameState));
+  }
+#endif
+
+  template <typename = void>
+  explicit PROTOBUF_CONSTEXPR GameState(
+      ::google::protobuf::internal::ConstantInitialized);
+
+  inline GameState(const GameState& from) : GameState(nullptr, from) {}
+  inline GameState(GameState&& from) noexcept
+      : GameState(nullptr, std::move(from)) {}
+  inline GameState& operator=(const GameState& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline GameState& operator=(GameState&& from) noexcept {
+    if (this == &from) return *this;
+    if (::google::protobuf::internal::CanMoveWithInternalSwap(GetArena(), from.GetArena())) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const
+      ABSL_ATTRIBUTE_LIFETIME_BOUND {
+    return _internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance);
+  }
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields()
+      ABSL_ATTRIBUTE_LIFETIME_BOUND {
+    return _internal_metadata_.mutable_unknown_fields<::google::protobuf::UnknownFieldSet>();
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::google::protobuf::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::google::protobuf::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const GameState& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const GameState* internal_default_instance() {
+    return reinterpret_cast<const GameState*>(
+        &_GameState_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages = 3;
+  friend void swap(GameState& a, GameState& b) { a.Swap(&b); }
+  inline void Swap(GameState* other) {
+    if (other == this) return;
+    if (::google::protobuf::internal::CanUseInternalSwap(GetArena(), other->GetArena())) {
+      InternalSwap(other);
+    } else {
+      ::google::protobuf::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(GameState* other) {
+    if (other == this) return;
+    ABSL_DCHECK(GetArena() == other->GetArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  GameState* New(::google::protobuf::Arena* arena = nullptr) const {
+    return ::google::protobuf::Message::DefaultConstruct<GameState>(arena);
+  }
+  using ::google::protobuf::Message::CopyFrom;
+  void CopyFrom(const GameState& from);
+  using ::google::protobuf::Message::MergeFrom;
+  void MergeFrom(const GameState& from) { GameState::MergeImpl(*this, from); }
+
+  private:
+  static void MergeImpl(
+      ::google::protobuf::MessageLite& to_msg,
+      const ::google::protobuf::MessageLite& from_msg);
+
+  public:
+  bool IsInitialized() const {
+    return true;
+  }
+  ABSL_ATTRIBUTE_REINITIALIZES void Clear() PROTOBUF_FINAL;
+  #if defined(PROTOBUF_CUSTOM_VTABLE)
+  private:
+  static ::size_t ByteSizeLong(const ::google::protobuf::MessageLite& msg);
+  static ::uint8_t* _InternalSerialize(
+      const MessageLite& msg, ::uint8_t* target,
+      ::google::protobuf::io::EpsCopyOutputStream* stream);
+
+  public:
+  ::size_t ByteSizeLong() const { return ByteSizeLong(*this); }
+  ::uint8_t* _InternalSerialize(
+      ::uint8_t* target,
+      ::google::protobuf::io::EpsCopyOutputStream* stream) const {
+    return _InternalSerialize(*this, target, stream);
+  }
+  #else   // PROTOBUF_CUSTOM_VTABLE
+  ::size_t ByteSizeLong() const final;
+  ::uint8_t* _InternalSerialize(
+      ::uint8_t* target,
+      ::google::protobuf::io::EpsCopyOutputStream* stream) const final;
+  #endif  // PROTOBUF_CUSTOM_VTABLE
+  int GetCachedSize() const { return _impl_._cached_size_.Get(); }
+
+  private:
+  void SharedCtor(::google::protobuf::Arena* arena);
+  static void SharedDtor(MessageLite& self);
+  void InternalSwap(GameState* other);
+ private:
+  template <typename T>
+  friend ::absl::string_view(
+      ::google::protobuf::internal::GetAnyMessageName)();
+  static ::absl::string_view FullMessageName() { return "game_backend.GameState"; }
+
+ protected:
+  explicit GameState(::google::protobuf::Arena* arena);
+  GameState(::google::protobuf::Arena* arena, const GameState& from);
+  GameState(::google::protobuf::Arena* arena, GameState&& from) noexcept
+      : GameState(arena) {
+    *this = ::std::move(from);
+  }
+  const ::google::protobuf::internal::ClassData* GetClassData() const PROTOBUF_FINAL;
+  static void* PlacementNew_(const void*, void* mem,
+                             ::google::protobuf::Arena* arena);
+  static constexpr auto InternalNewImpl_();
+  static const ::google::protobuf::internal::ClassDataFull _class_data_;
+
+ public:
+  ::google::protobuf::Metadata GetMetadata() const;
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+  enum : int {
+    kPlatformStatesFieldNumber = 6,
+    kPositionFieldNumber = 1,
+    kVelocityFieldNumber = 2,
+    kIsInAirFieldNumber = 3,
+    kHasWonFieldNumber = 4,
+    kYOrientationAngleFieldNumber = 5,
+  };
+  // repeated .game_backend.DynamicPlatformState platform_states = 6;
+  int platform_states_size() const;
+  private:
+  int _internal_platform_states_size() const;
+
+  public:
+  void clear_platform_states() ;
+  ::game_backend::DynamicPlatformState* mutable_platform_states(int index);
+  ::google::protobuf::RepeatedPtrField<::game_backend::DynamicPlatformState>* mutable_platform_states();
+
+  private:
+  const ::google::protobuf::RepeatedPtrField<::game_backend::DynamicPlatformState>& _internal_platform_states() const;
+  ::google::protobuf::RepeatedPtrField<::game_backend::DynamicPlatformState>* _internal_mutable_platform_states();
+  public:
+  const ::game_backend::DynamicPlatformState& platform_states(int index) const;
+  ::game_backend::DynamicPlatformState* add_platform_states();
+  const ::google::protobuf::RepeatedPtrField<::game_backend::DynamicPlatformState>& platform_states() const;
+  // .game_backend.Vector3 position = 1;
+  bool has_position() const;
+  void clear_position() ;
+  const ::game_backend::Vector3& position() const;
+  PROTOBUF_NODISCARD ::game_backend::Vector3* release_position();
+  ::game_backend::Vector3* mutable_position();
+  void set_allocated_position(::game_backend::Vector3* value);
+  void unsafe_arena_set_allocated_position(::game_backend::Vector3* value);
+  ::game_backend::Vector3* unsafe_arena_release_position();
+
+  private:
+  const ::game_backend::Vector3& _internal_position() const;
+  ::game_backend::Vector3* _internal_mutable_position();
+
+  public:
+  // .game_backend.Vector3 velocity = 2;
+  bool has_velocity() const;
+  void clear_velocity() ;
+  const ::game_backend::Vector3& velocity() const;
+  PROTOBUF_NODISCARD ::game_backend::Vector3* release_velocity();
+  ::game_backend::Vector3* mutable_velocity();
+  void set_allocated_velocity(::game_backend::Vector3* value);
+  void unsafe_arena_set_allocated_velocity(::game_backend::Vector3* value);
+  ::game_backend::Vector3* unsafe_arena_release_velocity();
+
+  private:
+  const ::game_backend::Vector3& _internal_velocity() const;
+  ::game_backend::Vector3* _internal_mutable_velocity();
+
+  public:
+  // bool is_in_air = 3;
+  void clear_is_in_air() ;
+  bool is_in_air() const;
+  void set_is_in_air(bool value);
+
+  private:
+  bool _internal_is_in_air() const;
+  void _internal_set_is_in_air(bool value);
+
+  public:
+  // bool has_won = 4;
+  void clear_has_won() ;
+  bool has_won() const;
+  void set_has_won(bool value);
+
+  private:
+  bool _internal_has_won() const;
+  void _internal_set_has_won(bool value);
+
+  public:
+  // float y_orientation_angle = 5;
+  void clear_y_orientation_angle() ;
+  float y_orientation_angle() const;
+  void set_y_orientation_angle(float value);
+
+  private:
+  float _internal_y_orientation_angle() const;
+  void _internal_set_y_orientation_angle(float value);
+
+  public:
+  // @@protoc_insertion_point(class_scope:game_backend.GameState)
+ private:
+  class _Internal;
+  friend class ::google::protobuf::internal::TcParser;
+  static const ::google::protobuf::internal::TcParseTable<
+      3, 6, 3,
+      0, 2>
+      _table_;
+
+  friend class ::google::protobuf::MessageLite;
+  friend class ::google::protobuf::Arena;
+  template <typename T>
+  friend class ::google::protobuf::Arena::InternalHelper;
+  using InternalArenaConstructable_ = void;
+  using DestructorSkippable_ = void;
+  struct Impl_ {
+    inline explicit constexpr Impl_(
+        ::google::protobuf::internal::ConstantInitialized) noexcept;
+    inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
+                          ::google::protobuf::Arena* arena);
+    inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
+                          ::google::protobuf::Arena* arena, const Impl_& from,
+                          const GameState& from_msg);
+    ::google::protobuf::internal::HasBits<1> _has_bits_;
+    ::google::protobuf::internal::CachedSize _cached_size_;
+    ::google::protobuf::RepeatedPtrField< ::game_backend::DynamicPlatformState > platform_states_;
+    ::game_backend::Vector3* position_;
+    ::game_backend::Vector3* velocity_;
+    bool is_in_air_;
+    bool has_won_;
+    float y_orientation_angle_;
+    PROTOBUF_TSAN_DECLARE_MEMBER
+  };
+  union { Impl_ _impl_; };
+  friend struct ::TableStruct_messages_2eproto;
+};
+// -------------------------------------------------------------------
+
 class ServerToClient final : public ::google::protobuf::Message
 /* @@protoc_insertion_point(class_definition:game_backend.ServerToClient) */ {
  public:
@@ -1320,7 +1550,7 @@ class ServerToClient final : public ::google::protobuf::Message
     return reinterpret_cast<const ServerToClient*>(
         &_ServerToClient_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 5;
+  static constexpr int kIndexInFileMessages = 6;
   friend void swap(ServerToClient& a, ServerToClient& b) { a.Swap(&b); }
   inline void Swap(ServerToClient* other) {
     if (other == this) return;
@@ -1571,6 +1801,128 @@ inline float Vector3::_internal_z() const {
 inline void Vector3::_internal_set_z(float value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.z_ = value;
+}
+
+// -------------------------------------------------------------------
+
+// DynamicPlatformState
+
+// int32 id = 1;
+inline void DynamicPlatformState::clear_id() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.id_ = 0;
+}
+inline ::int32_t DynamicPlatformState::id() const {
+  // @@protoc_insertion_point(field_get:game_backend.DynamicPlatformState.id)
+  return _internal_id();
+}
+inline void DynamicPlatformState::set_id(::int32_t value) {
+  _internal_set_id(value);
+  // @@protoc_insertion_point(field_set:game_backend.DynamicPlatformState.id)
+}
+inline ::int32_t DynamicPlatformState::_internal_id() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.id_;
+}
+inline void DynamicPlatformState::_internal_set_id(::int32_t value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.id_ = value;
+}
+
+// .game_backend.Vector3 position = 2;
+inline bool DynamicPlatformState::has_position() const {
+  bool value = (_impl_._has_bits_[0] & 0x00000001u) != 0;
+  PROTOBUF_ASSUME(!value || _impl_.position_ != nullptr);
+  return value;
+}
+inline void DynamicPlatformState::clear_position() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  if (_impl_.position_ != nullptr) _impl_.position_->Clear();
+  _impl_._has_bits_[0] &= ~0x00000001u;
+}
+inline const ::game_backend::Vector3& DynamicPlatformState::_internal_position() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  const ::game_backend::Vector3* p = _impl_.position_;
+  return p != nullptr ? *p : reinterpret_cast<const ::game_backend::Vector3&>(::game_backend::_Vector3_default_instance_);
+}
+inline const ::game_backend::Vector3& DynamicPlatformState::position() const ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_get:game_backend.DynamicPlatformState.position)
+  return _internal_position();
+}
+inline void DynamicPlatformState::unsafe_arena_set_allocated_position(::game_backend::Vector3* value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  if (GetArena() == nullptr) {
+    delete reinterpret_cast<::google::protobuf::MessageLite*>(_impl_.position_);
+  }
+  _impl_.position_ = reinterpret_cast<::game_backend::Vector3*>(value);
+  if (value != nullptr) {
+    _impl_._has_bits_[0] |= 0x00000001u;
+  } else {
+    _impl_._has_bits_[0] &= ~0x00000001u;
+  }
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:game_backend.DynamicPlatformState.position)
+}
+inline ::game_backend::Vector3* DynamicPlatformState::release_position() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+
+  _impl_._has_bits_[0] &= ~0x00000001u;
+  ::game_backend::Vector3* released = _impl_.position_;
+  _impl_.position_ = nullptr;
+  if (::google::protobuf::internal::DebugHardenForceCopyInRelease()) {
+    auto* old = reinterpret_cast<::google::protobuf::MessageLite*>(released);
+    released = ::google::protobuf::internal::DuplicateIfNonNull(released);
+    if (GetArena() == nullptr) {
+      delete old;
+    }
+  } else {
+    if (GetArena() != nullptr) {
+      released = ::google::protobuf::internal::DuplicateIfNonNull(released);
+    }
+  }
+  return released;
+}
+inline ::game_backend::Vector3* DynamicPlatformState::unsafe_arena_release_position() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  // @@protoc_insertion_point(field_release:game_backend.DynamicPlatformState.position)
+
+  _impl_._has_bits_[0] &= ~0x00000001u;
+  ::game_backend::Vector3* temp = _impl_.position_;
+  _impl_.position_ = nullptr;
+  return temp;
+}
+inline ::game_backend::Vector3* DynamicPlatformState::_internal_mutable_position() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  if (_impl_.position_ == nullptr) {
+    auto* p = ::google::protobuf::Message::DefaultConstruct<::game_backend::Vector3>(GetArena());
+    _impl_.position_ = reinterpret_cast<::game_backend::Vector3*>(p);
+  }
+  return _impl_.position_;
+}
+inline ::game_backend::Vector3* DynamicPlatformState::mutable_position() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  _impl_._has_bits_[0] |= 0x00000001u;
+  ::game_backend::Vector3* _msg = _internal_mutable_position();
+  // @@protoc_insertion_point(field_mutable:game_backend.DynamicPlatformState.position)
+  return _msg;
+}
+inline void DynamicPlatformState::set_allocated_position(::game_backend::Vector3* value) {
+  ::google::protobuf::Arena* message_arena = GetArena();
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  if (message_arena == nullptr) {
+    delete (_impl_.position_);
+  }
+
+  if (value != nullptr) {
+    ::google::protobuf::Arena* submessage_arena = (value)->GetArena();
+    if (message_arena != submessage_arena) {
+      value = ::google::protobuf::internal::GetOwnedMessage(message_arena, value, submessage_arena);
+    }
+    _impl_._has_bits_[0] |= 0x00000001u;
+  } else {
+    _impl_._has_bits_[0] &= ~0x00000001u;
+  }
+
+  _impl_.position_ = reinterpret_cast<::game_backend::Vector3*>(value);
+  // @@protoc_insertion_point(field_set_allocated:game_backend.DynamicPlatformState.position)
 }
 
 // -------------------------------------------------------------------
@@ -1969,6 +2321,55 @@ inline float GameState::_internal_y_orientation_angle() const {
 inline void GameState::_internal_set_y_orientation_angle(float value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.y_orientation_angle_ = value;
+}
+
+// repeated .game_backend.DynamicPlatformState platform_states = 6;
+inline int GameState::_internal_platform_states_size() const {
+  return _internal_platform_states().size();
+}
+inline int GameState::platform_states_size() const {
+  return _internal_platform_states_size();
+}
+inline void GameState::clear_platform_states() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.platform_states_.Clear();
+}
+inline ::game_backend::DynamicPlatformState* GameState::mutable_platform_states(int index)
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_mutable:game_backend.GameState.platform_states)
+  return _internal_mutable_platform_states()->Mutable(index);
+}
+inline ::google::protobuf::RepeatedPtrField<::game_backend::DynamicPlatformState>* GameState::mutable_platform_states()
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_mutable_list:game_backend.GameState.platform_states)
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  return _internal_mutable_platform_states();
+}
+inline const ::game_backend::DynamicPlatformState& GameState::platform_states(int index) const
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_get:game_backend.GameState.platform_states)
+  return _internal_platform_states().Get(index);
+}
+inline ::game_backend::DynamicPlatformState* GameState::add_platform_states() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  ::game_backend::DynamicPlatformState* _add = _internal_mutable_platform_states()->Add();
+  // @@protoc_insertion_point(field_add:game_backend.GameState.platform_states)
+  return _add;
+}
+inline const ::google::protobuf::RepeatedPtrField<::game_backend::DynamicPlatformState>& GameState::platform_states() const
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_list:game_backend.GameState.platform_states)
+  return _internal_platform_states();
+}
+inline const ::google::protobuf::RepeatedPtrField<::game_backend::DynamicPlatformState>&
+GameState::_internal_platform_states() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.platform_states_;
+}
+inline ::google::protobuf::RepeatedPtrField<::game_backend::DynamicPlatformState>*
+GameState::_internal_mutable_platform_states() {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return &_impl_.platform_states_;
 }
 
 // -------------------------------------------------------------------

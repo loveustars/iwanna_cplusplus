@@ -37,6 +37,9 @@ private:
     PlayerState nowPlayerState_;
     PlayerInputState currentInput_;
     MapData currentMap_; // 存储当前加载的地图数据
+    std::vector<AABB> staticObstacles_;
+    std::vector<DynamicPlatform> dynamicPlatforms_;
+    Struct3D victoryPoint_;
     // std::vector<AABB> obstacles_; // 由 currentMap_.obstacles 替代
     // Struct3D victoryPoint_; // 由 currentMap_.victoryPoint 替代
     // bool playerHasWon_ = false; // 移动到 PlayerState 中

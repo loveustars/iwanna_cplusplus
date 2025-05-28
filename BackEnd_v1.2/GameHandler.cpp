@@ -13,8 +13,11 @@ GameHandler::GameHandler() {
 void GameHandler::Initialize() {
     nowPlayerState_ = {}; // 重置玩家状态
     currentInput_ = {};   // 重置输入状态
+    staticObstacles_.clear();
+    dynamicPlatforms_.clear();
 
     // 加载地图数据
+    LoadMapFromFile(GameConstants::DEFAULT_MAP_FILE);
     currentMap_ = LoadMapFromFile(GameConstants::DEFAULT_MAP_FILE);
     if (!currentMap_.loadedSuccessfully) {
         std::cerr << "[Game] Error: Failed to load map data from " << GameConstants::DEFAULT_MAP_FILE
@@ -141,13 +144,20 @@ MapData GameHandler::LoadMapFromFile(const std::string& filename) {
 
         if (type == "obstacle_aabb") {
             AABB obstacle;
-            // 增加了解析数字是否成功的检查
             if (!(iss >> obstacle.min.x >> obstacle.min.y >> obstacle.min.z
                 >> obstacle.max.x >> obstacle.max.y >> obstacle.max.z)) {
                 std::cerr << "[Game] Warning: Malformed 'obstacle_aabb' line (could not parse numbers): " << line << std::endl;
                 continue;
             }
             mapData.obstacles.push_back(obstacle);
+        }
+        else if (type == "dynamic_platform_rising") { // 新增上升平台
+            int id;
+            Struct3D center, size;
+            float speed, height;
+            if (iss >> id >> center.x >> center.y >> center.z >> size.x >> size.y >> size.z >> speed >> height) {
+                dynamicPlatforms_.emplace_back(id, center, size, speed, height);
+            }
         }
         else {
             // 4. 如果行首的单词不是我们认识的任何类型，则报告为无效行
@@ -172,6 +182,11 @@ void GameHandler::Update(float deltaTime) {
         // 可以选择重置跳跃输入，防止在胜利后还能收到跳跃指令影响状态
         currentInput_.jumpPressed = false;
         return;
+    }
+
+    // --- 0. 更新所有动态平台的逻辑 ---
+    for (auto& platform : currentMap_.dynamicPlatforms) {
+        platform.Update(deltaTime); // 平台根据自身状态移动
     }
 
     /*
@@ -249,19 +264,238 @@ void GameHandler::Update(float deltaTime) {
         nowPlayerState_.velocity.y = std::max(nowPlayerState_.velocity.y, GameConstants::MAX_FALL_VELOCITY);
     }
     else {
-        nowPlayerState_.velocity.y = -0.01f; // 这里是为了让后续碰撞检测不必那么精确
+        nowPlayerState_.velocity.y = -0.05f; // 这里是为了让后续碰撞检测不必那么精确
     }
 
     // 4. 计算无碰撞时的下一位置
     Struct3D potentialNextPos = nowPlayerState_.pos + (nowPlayerState_.velocity * deltaTime);
 
+    PlayerState tempStateForCollision = nowPlayerState_;
+    PlayerState nextState = nowPlayerState_;
+    nextState.pos = potentialNextPos;
+    tempStateForCollision.pos = potentialNextPos;
+    AABB playerNextAABB = GetPlayerAABB(tempStateForCollision);
+
+    bool collisionOccurredThisFrame = false;
+    bool landedOnPlatformThisFrame = false; // 用于区分平台着陆和地面着陆
+
+    // 1）检测与场景中静态障碍物的碰撞
+    for (const auto& obstacle : currentMap_.obstacles) {
+        if (CheckAABBCollision(playerNextAABB, obstacle)) {
+            // std::cout << "[Game] Collision detected with obstacle." << std::endl; // 保留
+            collisionOccurredThisFrame = true;
+
+            // 简化的碰撞响应：将玩家推回，并停止在该方向上的速度
+            // 查找重叠最小的轴，计算各轴上的重叠量
+            float overlapX = 0.0f, overlapY = 0.0f, overlapZ = 0.0f;
+
+            // 计算X轴重叠
+            if (playerNextAABB.max.x > obstacle.min.x && playerNextAABB.min.x < obstacle.max.x) {
+                overlapX = std::min(playerNextAABB.max.x - obstacle.min.x, obstacle.max.x - playerNextAABB.min.x);
+            }
+            // 计算Y轴重叠
+            if (playerNextAABB.max.y > obstacle.min.y && playerNextAABB.min.y < obstacle.max.y) {
+                overlapY = std::min(playerNextAABB.max.y - obstacle.min.y, obstacle.max.y - playerNextAABB.min.y);
+            }
+            // 计算Z轴重叠
+            if (playerNextAABB.max.z > obstacle.min.z && playerNextAABB.min.z < obstacle.max.z) {
+                overlapZ = std::min(playerNextAABB.max.z - obstacle.min.z, obstacle.max.z - playerNextAABB.min.z);
+            }
+
+            // 优先处理Y轴碰撞 (着陆或撞头)
+            if (overlapY > 0 && (overlapX == 0 || overlapY <= overlapX) && (overlapZ == 0 || overlapY <= overlapZ)) {
+                if (nowPlayerState_.velocity.y <= 0 && playerNextAABB.min.y < obstacle.max.y && nowPlayerState_.pos.y >= obstacle.max.y - GameConstants::PLAYER_HEIGHT * 0.5f) { // 向下运动时撞到顶部
+                    potentialNextPos.y = obstacle.max.y + GameConstants::PLAYER_HEIGHT * 0.5f; // 精确放到障碍物顶部再加半高，因为Unity对于scale的定义
+                    nowPlayerState_.velocity.y = 0;
+                    nowPlayerState_.isInAir = false;
+                    // std::cout << "[Game] Landed on obstacle." << std::endl;
+                }
+                else if (nowPlayerState_.velocity.y > 0 && playerNextAABB.max.y > obstacle.min.y && nowPlayerState_.pos.y <= obstacle.min.y + GameConstants::PLAYER_HEIGHT * 0.5f) { // 向上运动时撞到底部
+                    potentialNextPos.y = obstacle.min.y - GameConstants::PLAYER_HEIGHT; // 精确放到障碍物下方
+                    nowPlayerState_.velocity.y = 0; // 撞头，停止向上的速度
+                    // std::cout << "[Game] Hit obstacle underside." << std::endl;
+                }
+            }
+            // 其次处理X轴碰撞
+            else if (overlapX > 0 && (overlapY == 0 || overlapX <= overlapY) && (overlapZ == 0 || overlapX <= overlapZ)) {
+                float pushBackEpsilon = 0.001f;
+                if (nowPlayerState_.velocity.x > 0 && playerNextAABB.max.x > obstacle.min.x) { //向右
+                    potentialNextPos.x = obstacle.min.x - GameConstants::PLAYER_WIDTH * 0.5f - pushBackEpsilon;
+                    nowPlayerState_.velocity.x = 0;
+                }
+                else if (nowPlayerState_.velocity.x < 0 && playerNextAABB.min.x < obstacle.max.x) { //向左
+                    potentialNextPos.x = obstacle.max.x + GameConstants::PLAYER_WIDTH * 0.5f + pushBackEpsilon;
+                    nowPlayerState_.velocity.x = 0;
+                }
+                // std::cout << "[Game] Hit obstacle side (X)." << std::endl;
+            }
+            // 最后处理Z轴碰撞
+            else if (overlapZ > 0) {
+                float pushBackEpsilon = 0.001f;
+                if (nowPlayerState_.velocity.z > 0 && playerNextAABB.max.z > obstacle.min.z) { //向前
+                    potentialNextPos.z = obstacle.min.z - GameConstants::PLAYER_DEPTH * 0.5f - pushBackEpsilon;
+                    nowPlayerState_.velocity.z = 0;
+                }
+                else if (nowPlayerState_.velocity.z < 0 && playerNextAABB.min.z < obstacle.max.z) { //向后
+                    potentialNextPos.z = obstacle.max.z + GameConstants::PLAYER_DEPTH * 0.5f + pushBackEpsilon;
+                    nowPlayerState_.velocity.z = 0;
+                }
+                // std::cout << "[Game] Hit obstacle side (Z)." << std::endl;
+            }
+            // 碰撞后重新计算玩家的AABB，因为位置可能已经改变
+            nextState.pos = potentialNextPos; // 更新临时状态的位置
+            playerNextAABB = GetPlayerAABB(nextState); // 重新获取AABB
+        }
+    }
+    /*
+    // 新增：碰撞检测与动态平台（实现不了）
+    for (auto& platform : currentMap_.dynamicPlatforms) {
+        // CRITICAL: Always recalculate player AABB with current potentialNextPos
+        // because static collisions might have modified it
+        tempStateForCollision.pos = potentialNextPos;
+        playerNextAABB = GetPlayerAABB(tempStateForCollision);
+
+        if (CheckAABBCollision(playerNextAABB, platform.aabb)) {
+            collisionOccurredThisFrame = true;
+
+            // Debug output to see what's happening
+            std::cout << "[DEBUG] Platform collision detected - Platform ID: " << platform.id
+                << " Player Y: " << potentialNextPos.y
+                << " Platform Top: " << platform.aabb.max.y
+                << " Player Velocity Y: " << nowPlayerState_.velocity.y << std::endl;
+
+            // Calculate player's feet position
+            float playerCurrentFeetY = potentialNextPos.y - GameConstants::PLAYER_HEIGHT * 0.5f;
+            float playerPreviousFeetY = nowPlayerState_.pos.y - GameConstants::PLAYER_HEIGHT * 0.5f;
+
+            // IMPROVED landing condition - more lenient and robust
+            bool isLandingOnPlatform =
+                nowPlayerState_.velocity.y <= 0.1f && // Allow small upward velocity due to floating point
+                playerCurrentFeetY <= platform.aabb.max.y + 0.1f && // Allow small penetration
+                playerPreviousFeetY >= platform.aabb.max.y - 0.2f; // More generous previous position check
+
+            // Alternative even more lenient condition - try this if above doesn't work
+            // bool isLandingOnPlatform = 
+            //     nowPlayerState_.velocity.y <= 0.5f && // Even more lenient velocity check
+            //     std::abs(playerCurrentFeetY - platform.aabb.max.y) <= 0.3f; // Simple distance check
+
+            if (isLandingOnPlatform) {
+                platform.Activate();
+
+                // Precisely place player on platform top
+                potentialNextPos.y = platform.aabb.max.y + GameConstants::PLAYER_HEIGHT * 0.5f;
+
+                // Handle platform movement - if platform is rising, player should rise with it
+                if (platform.state == DynamicPlatform::State::ACTIVATED) {
+                    // If you have access to platform's velocity, match it:
+                    // nowPlayerState_.velocity.y = platform.riseSpeed;
+                    // Otherwise, just stop downward movement:
+                    nowPlayerState_.velocity.y = 0.0f;
+                }
+                else {
+                    nowPlayerState_.velocity.y = 0.0f;
+                }
+
+                nowPlayerState_.isInAir = false;
+                landedOnPlatformThisFrame = true;
+
+                std::cout << "[DEBUG] Player landed on platform " << platform.id
+                    << " at Y: " << potentialNextPos.y << std::endl;
+            }
+            else {
+                // Handle side/bottom collisions
+                float overlapX = 0.0f, overlapY = 0.0f, overlapZ = 0.0f;
+
+                // Recalculate overlaps with current position
+                if (playerNextAABB.max.x > platform.aabb.min.x && playerNextAABB.min.x < platform.aabb.max.x)
+                    overlapX = std::min(playerNextAABB.max.x - platform.aabb.min.x, platform.aabb.max.x - playerNextAABB.min.x);
+                if (playerNextAABB.max.y > platform.aabb.min.y && playerNextAABB.min.y < platform.aabb.max.y)
+                    overlapY = std::min(playerNextAABB.max.y - platform.aabb.min.y, platform.aabb.max.y - playerNextAABB.min.y);
+                if (playerNextAABB.max.z > platform.aabb.min.z && playerNextAABB.min.z < platform.aabb.max.z)
+                    overlapZ = std::min(playerNextAABB.max.z - platform.aabb.min.z, platform.aabb.max.z - playerNextAABB.min.z);
+
+                float epsilon = 0.01f; // Slightly larger epsilon to prevent floating point issues
+
+                // Handle Y-axis collision (hitting platform from below)
+                if (nowPlayerState_.velocity.y > 0 &&
+                    playerNextAABB.max.y > platform.aabb.min.y &&
+                    playerNextAABB.min.y < platform.aabb.min.y &&
+                    overlapY > 0) {
+                    potentialNextPos.y = platform.aabb.min.y - GameConstants::PLAYER_HEIGHT * 0.5f - epsilon;
+                    nowPlayerState_.velocity.y = 0;
+                    std::cout << "[DEBUG] Hit platform bottom" << std::endl;
+                }
+                // Handle X-axis collision
+                else if (overlapX > 0 && overlapX <= overlapY && overlapX <= overlapZ) {
+                    if (nowPlayerState_.velocity.x > 0) {
+                        potentialNextPos.x = platform.aabb.min.x - GameConstants::PLAYER_WIDTH * 0.5f - epsilon;
+                    }
+                    else if (nowPlayerState_.velocity.x < 0) {
+                        potentialNextPos.x = platform.aabb.max.x + GameConstants::PLAYER_WIDTH * 0.5f + epsilon;
+                    }
+                    nowPlayerState_.velocity.x = 0;
+                    std::cout << "[DEBUG] Hit platform side (X)" << std::endl;
+                }
+                // Handle Z-axis collision
+                else if (overlapZ > 0) {
+                    if (nowPlayerState_.velocity.z > 0) {
+                        potentialNextPos.z = platform.aabb.min.z - GameConstants::PLAYER_DEPTH * 0.5f - epsilon;
+                    }
+                    else if (nowPlayerState_.velocity.z < 0) {
+                        potentialNextPos.z = platform.aabb.max.z + GameConstants::PLAYER_DEPTH * 0.5f + epsilon;
+                    }
+                    nowPlayerState_.velocity.z = 0;
+                    std::cout << "[DEBUG] Hit platform side (Z)" << std::endl;
+                }
+            }
+        }
+    }*/
+    // 2）检测与地面的碰撞
+    bool landedOnGroundThisFrame = false;
+    float playerBottomY = potentialNextPos.y - GameConstants::PLAYER_HEIGHT * 0.5f;
+    if (potentialNextPos.y <= GameConstants::GROUND_LEVEL_Y && nowPlayerState_.velocity.y <= 0) {
+        if (!nowPlayerState_.isInAir) { // 如果已经在地面
+            potentialNextPos.y = GameConstants::GROUND_LEVEL_Y + GameConstants::PLAYER_HEIGHT * 0.5f;
+        }
+        else { // 如果刚接触地面
+            potentialNextPos.y = GameConstants::GROUND_LEVEL_Y + GameConstants::PLAYER_HEIGHT * 0.5f;
+            nowPlayerState_.velocity.y = 0;
+            nowPlayerState_.isInAir = false;
+            landedOnGroundThisFrame = true;
+            // std::cout << "[Game] Landed on ground." << std::endl;
+        }
+        collisionOccurredThisFrame = true;
+    }
+
+    // 6. 更新最终位置
+    nowPlayerState_.pos = potentialNextPos;
+
+    // 7. 更新空中状态
+    // 如果本帧没有着陆（到地面或障碍物上），并且玩家最终位置高于地面，则玩家在空中
+    if (!landedOnGroundThisFrame && !(!nowPlayerState_.isInAir && collisionOccurredThisFrame && nowPlayerState_.velocity.y == 0)) {
+        if (nowPlayerState_.pos.y > GameConstants::GROUND_LEVEL_Y) {
+            if (!nowPlayerState_.isInAir) { // 之前在地上，现在高于地面 (例如从边缘走下)
+                // std::cout << "[Game] Left ground/obstacle." << std::endl;
+            }
+            nowPlayerState_.isInAir = true;
+        }
+    }
+    // 8. 检查胜利条件
+    CheckWinCondition();
+
+
+    // 9. 重置单帧输入事件
+    currentInput_.jumpPressed = false;
+
+    
+    /*
     // 5. 碰撞检测与处理
     PlayerState nextState = nowPlayerState_;
     nextState.pos = potentialNextPos;
     AABB playerNextAABB = GetPlayerAABB(nextState);
     bool collisionOccurredThisFrame = false;
 
-    // 1）检测与场景中静态障碍物的碰撞 (使用从地图文件加载的障碍物)
+    // 1）检测与场景中静态障碍物的碰撞
     for (const auto& obstacle : currentMap_.obstacles) {
         if (CheckAABBCollision(playerNextAABB, obstacle)) {
             // std::cout << "[Game] Collision detected with obstacle." << std::endl; // 保留
@@ -331,6 +565,7 @@ void GameHandler::Update(float deltaTime) {
     }
 
 
+
     // 2）检测与地面的碰撞
     bool landedOnGroundThisFrame = false;
     float playerBottomY = potentialNextPos.y - GameConstants::PLAYER_HEIGHT * 0.5f;
@@ -369,6 +604,7 @@ void GameHandler::Update(float deltaTime) {
 
     // 9. 重置单帧输入事件
     currentInput_.jumpPressed = false;
+    */
 }
 
 // 检查玩家是否到达胜利点
@@ -382,6 +618,8 @@ void GameHandler::CheckWinCondition() {
         }
     }
 }
+
+
 
 
 std::optional<std::string> GameHandler::GetStateDataForNetwork() const {
@@ -407,6 +645,17 @@ std::optional<std::string> GameHandler::GetStateDataForNetwork() const {
     state_payload->set_is_in_air(nowPlayerState_.isInAir);
     state_payload->set_has_won(nowPlayerState_.hasWon); // 同步胜利状态
 
+    // 填充动态平台
+    for (const auto& platform : dynamicPlatforms_) {
+        game_backend::DynamicPlatformState* platform_state_proto = state_payload->add_platform_states();
+        platform_state_proto->set_id(platform.id);
+
+        game_backend::Vector3* pos_proto = platform_state_proto->mutable_position();
+        pos_proto->set_x(platform.currentCenter.x);
+        pos_proto->set_y(platform.currentCenter.y);
+        pos_proto->set_z(platform.currentCenter.z);
+    }
+
     std::string serialized_data;
     if (!server_msg.SerializeToString(&serialized_data)) {
         std::cerr << "[Game] Error: Failed to serialize game state!" << std::endl;
@@ -414,6 +663,7 @@ std::optional<std::string> GameHandler::GetStateDataForNetwork() const {
     }
     return serialized_data;
 }
+
 
 bool GameHandler::CheckAABBCollision(const AABB& a, const AABB& b) const {
     bool xOverlap = a.max.x > b.min.x && a.min.x < b.max.x;

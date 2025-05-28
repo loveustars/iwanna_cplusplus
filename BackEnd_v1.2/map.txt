@@ -1,4 +1,4 @@
-victory_point 43.0 9.5 0
+victory_point 32.0 3.5 3.0
 
 # ===================================================================
 # 3D平台跳跃游戏 Demo关卡地图文件
@@ -18,6 +18,12 @@ victory_point 43.0 9.5 0
 # - Scale.x = max_x - min_x
 # - Scale.y = max_y - min_y
 # - Scale.z = max_z - min_z
+# dynamic_platform_rising <id> <cx> <cy> <cz> <sx> <sy> <sz> <speed> <max_rise_height>
+# <id>: 一个唯一的整数ID，用于将后端的平台对象与前端的Unity模型关联起来。
+# <cx> <cy> <cz>: 平台的初始中心位置。
+# <sx> <sy> <sz>: 平台的尺寸（长、宽、高）。
+# <speed>: 平台被激活后的上升速度。
+# <max_rise_height>: 平台从初始位置开始，最大可以上升的高度。
 #
 # 玩家出生点在 (0, 0.5, 0)，玩家尺寸为 1x1x1
 # 用户也可使用2022.3.61f1编辑器进行关卡编辑，并在map.txt中手动添加碰撞区域
@@ -84,14 +90,17 @@ obstacle_aabb 27.0 2.0 4.0 29.0 3.0 6.0
 
 obstacle_aabb 31.0 2.5 2.0 33.0 3.5 4.0
 
-# 浮空岛3
+# 浮空岛3 （上升）
 
-obstacle_aabb 34.0 5.0 -1.0 36.0 6.0 1.0
+dynamic_platform_rising 1 35.0 3 0.0 2.0 1.0 2.0 2.0 7.0
 
-# 浮空岛4
+# obstacle_aabb 34.0 5.0 -1.0 36.0 6.0 1.0
 
+# 浮空岛4 （上升）
 
-obstacle_aabb 37.0 7.0 -3.0 39.0 8.0 -1.0
+dynamic_platform_rising 2 38.0 6 -2.0 2.0 1.0 2.0 2.0 5.0
+
+# obstacle_aabb 37.0 7.0 -3.0 39.0 8.0 -1.0
 
 # 区域5: 终点
 
