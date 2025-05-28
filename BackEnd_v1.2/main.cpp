@@ -1,5 +1,6 @@
 // main.cpp
 
+
 #include "AsioNetworkManager.h"            // 使用基于Asio的网络管理器
 #include "GameHandler.h"        // 包含游戏逻辑处理器
 #include <chrono>               // 用于时间计算
@@ -7,6 +8,19 @@
 #include <iostream>
 #include <memory>
 #include <optional>
+#include <crtdbg.h>
+
+void EnableMemoryDebugging() {
+    // Enable memory leak detection at program exit
+    _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+
+    // Set the debug heap to check for memory corruption
+    _CrtSetReportMode(_CRT_WARN, _CRTDBG_MODE_DEBUG);
+    _CrtSetReportMode(_CRT_ERROR, _CRTDBG_MODE_DEBUG);
+    _CrtSetReportMode(_CRT_ASSERT, _CRTDBG_MODE_DEBUG);
+
+    std::cout << "Memory debugging enabled." << std::endl;
+}
 
 // 定义服务器监听的端口号
 constexpr short SERVER_PORT = 12034;

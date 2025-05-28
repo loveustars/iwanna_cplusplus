@@ -1,6 +1,108 @@
-victory_point 10.0 0.5 5.0
-obstacle_aabb -5.0 -0.5 -5.0 5.0 0.0 5.0
-obstacle_aabb 5.0 -0.5 2.0 15.0 0.0 8.0
-obstacle_aabb 2.0 2.0 -2.0 4.0 2.5 0.0
-obstacle_aabb -1.0 0.0 5.0 0.0 3.0 6.0
-obstacle_aabb 8.0 0.0 3.0 12.0 0.5 7.0
+victory_point 32.0 3.5 3.0
+
+# ===================================================================
+# 3D平台跳跃游戏 Demo关卡地图文件
+# ===================================================================
+#
+# 格式说明:
+# 1. 胜利点: victory_point &lt;x&gt; &lt;y&gt; &lt;z&gt;
+# 2. 障碍物: obstacle_aabb &lt;min_x&gt; &lt;min_y&gt; &lt;min_z&gt; &lt;max_x&gt; &lt;max_y&gt; &lt;max_z&gt;
+# 3. 第一行必须是终点位置，剩下的#号开头将被视为注释
+
+# Unity 构建提示:
+# 对于一个AABB {min: (min_x, min_y, min_z), max: (max_x, max_y, max_z)}
+# 可以在Unity中创建一个Cube并设置其 Transform:
+# - Position.x = (min_x + max_x) / 2
+# - Position.y = (min_y + max_y) / 2
+# - Position.z = (min_z + max_z) / 2
+# - Scale.x = max_x - min_x
+# - Scale.y = max_y - min_y
+# - Scale.z = max_z - min_z
+# dynamic_platform_rising <id> <cx> <cy> <cz> <sx> <sy> <sz> <speed> <max_rise_height>
+# <id>: 一个唯一的整数ID，用于将后端的平台对象与前端的Unity模型关联起来。
+# <cx> <cy> <cz>: 平台的初始中心位置。
+# <sx> <sy> <sz>: 平台的尺寸（长、宽、高）。
+# <speed>: 平台被激活后的上升速度。
+# <max_rise_height>: 平台从初始位置开始，最大可以上升的高度。
+#
+# 玩家出生点在 (0, 0.5, 0)，玩家尺寸为 1x1x1
+# 用户也可使用2022.3.61f1编辑器进行关卡编辑，并在map.txt中手动添加碰撞区域
+
+# 区域1: 基础教学区
+
+# 起始平台 (一个大的正方形地面)
+
+obstacle_aabb -10.0 -1.0 -10.0 10.0 0.0 10.0
+
+# 第一个简单的跳跃间隙
+
+# 在Z轴方向上跳到下一个平台。
+
+obstacle_aabb -5.0 -1.0 12.5 5.0 0.0 16.5
+
+# 区域2: 阶梯与高台
+
+# 阶梯式平台 (连续向上跳跃)
+
+# 第一个台阶
+
+obstacle_aabb 6.0 -0.75 12.0 8.0 0.25 14.0
+
+# 第二个台阶
+
+obstacle_aabb 9.0 0.25 11.0 11.0 1.25 13.0
+
+# 第三个台阶 (高台)
+
+obstacle_aabb 12.0 1.0 14.0 14.0 2.0 16.0
+
+# 从高台到远处的长跳平台
+
+obstacle_aabb 16.0 1.0 8.0 24.0 2.0 16.0
+
+# 区域3: 狭窄通道与精准跳跃
+
+# 环绕高墙的狭窄通道
+
+# 玩家需要沿着墙壁走，并在拐角处进行精准跳跃。
+
+# 左侧墙体 (一面很长的墙)
+
+obstacle_aabb 17.0 0.0 6.5 29.0 7.0 8.5
+
+# 前方道路 (L形)
+
+obstacle_aabb 17.5 1.0 4.5 26.5 2.0 5.5
+
+# 前方道路拐角
+
+obstacle_aabb 16.5 1.0 -1.0 17.5 2.0 7.0
+
+# 区域4: 浮空岛屿
+
+# 一系列需要精准落点的浮空小平台
+
+# 浮空岛1
+
+obstacle_aabb 27.0 2.0 4.0 29.0 3.0 6.0
+
+# 浮空岛2
+
+obstacle_aabb 31.0 2.5 2.0 33.0 3.5 4.0
+
+# 浮空岛3 （上升）
+
+dynamic_platform_rising 1 35.0 3 0.0 2.0 1.0 2.0 2.0 7.0
+
+# obstacle_aabb 34.0 5.0 -1.0 36.0 6.0 1.0
+
+# 浮空岛4 （上升）
+
+dynamic_platform_rising 2 38.0 6 -2.0 2.0 1.0 2.0 2.0 5.0
+
+# obstacle_aabb 37.0 7.0 -3.0 39.0 8.0 -1.0
+
+# 区域5: 终点
+
+# 终点平台
+obstacle_aabb 40.0 8.0 -3.0 46.0 9.0 3.0

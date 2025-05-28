@@ -8,12 +8,18 @@ message Vector3 {
   float z = 3;
 }
 
+message DynamicPlatformState {
+  int32 id = 1;
+  Vector3 position = 2;
+}
+
 message PlayerInput {
   bool move_forward = 1;
   bool move_backward = 2;
   bool move_left = 3;
   bool move_right = 4;
   bool jump_pressed = 5;
+  float turn_input = 6;
 }
 
 message GameState {
@@ -21,6 +27,8 @@ message GameState {
   Vector3 velocity = 2;
   bool is_in_air = 3;
   bool has_won = 4;
+  float y_orientation_angle = 5;
+  repeated DynamicPlatformState platform_states = 6;
 }
 
 enum GameEventType {

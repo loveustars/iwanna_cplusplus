@@ -1,4 +1,3 @@
-
 #pragma once
 
 #include <string>
@@ -47,6 +46,7 @@ class PlayerState {
 public:
     Struct3D pos = { 0.0f, 0.5f, 0.0f }; // 初始位置，略高于地面
     Struct3D velocity = { 0.0f, 0.0f, 0.0f }; // 初始速度
+    float yOrientationAngle = 0.0f;         // Y轴的旋转角度
     bool isInAir = true; // 初始状态视为在空中
     bool hasWon = false; // 玩家是否已胜利
 };
@@ -57,6 +57,7 @@ struct PlayerInputState {
     bool moveBackward = false;
     bool moveLeft = false;
     bool moveRight = false;
+    float turnInput = 0.0f;
     bool jumpPressed = false; // 仅在跳跃键被按下的那一帧为 true
 };
 
@@ -70,6 +71,7 @@ namespace GameConstants {
     constexpr float PLAYER_HEIGHT = 1.0f;
     constexpr float PLAYER_WIDTH = 1.0f;
     constexpr float PLAYER_DEPTH = 1.0f;
+    constexpr float SERVER_ROTATION_SPEED = 200.0f;
     const std::string DEFAULT_MAP_FILE = "map.txt"; // 默认地图文件名
 }
 
@@ -89,24 +91,68 @@ inline AABB CreateAABB(const Struct3D& center, const Struct3D& size) {
     };
 }
 
+
 // 辅助函数：根据玩家状态获取其当前AABB
 inline AABB GetPlayerAABB(const PlayerState& state) {
-    Struct3D playerCenter = {
-        state.pos.x,
-        state.pos.y + GameConstants::PLAYER_HEIGHT * 0.5f,
-        state.pos.z
-    };
+    
     Struct3D playerSize = {
         GameConstants::PLAYER_WIDTH,
         GameConstants::PLAYER_HEIGHT,
         GameConstants::PLAYER_DEPTH
     };
-    return CreateAABB(playerCenter, playerSize);
+    return CreateAABB(state.pos, playerSize); // Unity默认的
 }
 
-// 新加了地图数据结构，包含障碍物和胜利点
+// 动态平台
+class DynamicPlatform {
+public:
+    enum class State {
+        IDLE,      // 空闲状态，未激活
+        ACTIVATED  // 已激活，正在上升
+    };
+
+    int id;                 // 唯一ID
+    AABB aabb;              // 当前的碰撞盒，会随位置变化
+    Struct3D initialCenter; // 初始中心位置
+    Struct3D currentCenter; // 当前中心位置
+    Struct3D size;          // 平台的尺寸
+    float riseSpeed;        // 上升速度
+    float maxRiseHeight;    // 最大上升高度
+    State state;            // 当前状态
+
+    DynamicPlatform(int p_id, const Struct3D& p_center, const Struct3D& p_size, float p_speed, float p_height)
+        : id(p_id), initialCenter(p_center), currentCenter(p_center), size(p_size),
+        riseSpeed(p_speed), maxRiseHeight(p_height), state(State::IDLE) {
+        // 根据初始中心和尺寸创建初始AABB
+        aabb = CreateAABB(currentCenter, size);
+    }
+
+    // 更新平台的逻辑，例如移动
+    void Update(float deltaTime) {
+        if (state == State::ACTIVATED) {
+            // 如果已激活且未达到最大高度
+            if (currentCenter.y < initialCenter.y + maxRiseHeight) {
+                // 向上移动
+                currentCenter.y += riseSpeed * deltaTime;
+                // 重新计算AABB
+                aabb = CreateAABB(currentCenter, size);
+            }
+        }
+    }
+
+    // 激活平台
+    void Activate() {
+        if (state == State::IDLE) {
+            state = State::ACTIVATED;
+        }
+    }
+};
+
+// 新加动态平台
 struct MapData {
     std::vector<AABB> obstacles;
+    std::vector<DynamicPlatform> dynamicPlatforms;
     Struct3D victoryPoint;
     bool loadedSuccessfully = false;
 };
+
